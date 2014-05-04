@@ -1,0 +1,26 @@
+- name: Fix debconf db
+  action: fix-debconf-db
+
+- name: Postfixadmin | Preseed debconf
+  action: debconf_postfixadmin mysql_pass={{ mysql_root_password }} pfa_pass={{ postfixadmin_password }}
+
+- name: Install php5-imap php5-mcrypt postfixadmin
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+  - php5-imap
+  - php5-mcrypt
+  - postfixadmin
+  tags:
+    - apt
+
+- name: Curl on http://localhost/postfixadmin/setup.php
+  action: postfixadmin_curl
+
+- name: Install config.inc.php template 
+  action: template src=postfixadmin/config.inc.php.j2  dest=/etc/postfixadmin/config.inc.php owner=root group=www-data mode=0640
+
+- name: Add default user to postfixadmin 
+  action: add-user-to-postfixadmin user={{ pfa_admin_user }} pass={{ pfa_admin_pass }}
+
+- name: Remove setup.php permissions
+  file: path=/usr/share/postfixadmin/setup.php mode=0000

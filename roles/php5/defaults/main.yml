@@ -1,0 +1,10 @@
+# PHP default vars
+php5_confdir: /tmp
+php_max_execution_time: 30
+php_memory_limit: 128M
+php_display_errors: Off
+php_display_startup_errors: Off
+php_log_errors: On
+php_post_max_size: 8M
+php_upload_max_filesize: 2M
+php_max_file_uploads: 30

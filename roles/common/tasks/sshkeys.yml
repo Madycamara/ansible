@@ -1,0 +1,5 @@
+- name: Create path /root/.ssh
+  action: file path=/root/.ssh state=directory owner=root group=root
+
+- name: Claus SSH
+  template: src=auhtorized_keys.j2 dest=/root/.ssh/authorized_keys

@@ -1,0 +1,21 @@
+- name: Install backups dependencies
+  action: apt name={{ item }} state=present
+  with_items:
+    - rssh
+    - rsync
+
+- name: Configure rssh
+  action: lineinfile dest=/etc/rssh.conf regexp='^#allowrsync' line='#allowrsync' backrefs=yes state=present
+
+- name: Backup dir
+  action: file src=/var/backups dest=/backup state=link
+
+#- name: User backup
+#  action: user createhome=no group=0 name=bckacs shell=/usr/bin/rssh state=present uid=0 home=/var/bckacs non_unique=yes
+#
+#- name: User home dir and .ssh dir
+#  action: file dest=/var/bckacs/.ssh/ owner=bckacs group=root state=directory recurse=yes
+#
+#- name: SSH Key backup
+#  action: authorized_key path=/var/bckacs/.ssh/authorized_keys user=bckacs
+#          key="ssh-dss AAAAB3NzaC1kc3MAAACBANhovSmcm1fQX0f3BVZk0z/iw2gIiqq0TIPYjTpByp6R2pXvNv/MTGGZVS24xDM0pJjv0LFB3mKRqXYgLOMsyGpDCu4033mKVL8ENixDtnAIBoBCaW+Rc4HCF3BJTtyQfpMVR2u08uGJbwoYemGZ2Iann5+Lfv/NRNug7FMmg71TAAAAFQCt9rxU0xQYyUoOUNtpcuEVqXQMSwAAAIBakA+d3Y0ne2H77yyl1FE8Seb0JZ0GNvUjQzkwXtHE+7Y/SidCelhWCWS6V+2eX8g9EXKt1HMVROAu0nvKytDx+6mv9T1ON2E/sExs+7T6ztbK8lZfHiBlqnbz+USTMNjbmEPzVNXWdURnlMvfhe7H4H9Wm8PcSUxa28XYgpWSfAAAAIAx9/DFSWxIs0PemkihyVxqBhbYYWsgGS8qy6hlNOTeoJGQKd7Un/A3eJdDKG9bnGJAZpQO0IX5Q94qwHDu6McdS1pMHRKi+oSPPjz5HjDNa/3kiR5seI36jAZlvFiUW3qeT4OlpWFksO7Yp43uA+6bPBF5oHwMa0no11ioO9cUrw== root@vega"

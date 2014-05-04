@@ -1,0 +1,2 @@
+- include: install.yml tags=zabbix,apt
+- include: configure.yml tags=zabbix

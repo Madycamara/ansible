@@ -1,0 +1,18 @@
+- name: Fix debconf db roundcube-install
+  action: fix-debconf-db
+
+- name: Roundcube | Preseed debconf
+  action: debconf_roundcube roundcube_pass={{ roundcube_password }} mysql_pass={{ mysql_root_password }} 
+  tags:
+    - apt
+
+- name: Install roundcube
+  apt: pkg={{ item }} state=present update_cache=yes
+  with_items:
+  - roundcube   
+  - roundcube-core
+  - roundcube-mysql
+  - roundcube-plugins 
+  - roundcube-plugins-extra
+  tags:
+    - apt

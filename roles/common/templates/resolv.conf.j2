@@ -1,0 +1,9 @@
+{% if search_domains is defined %}
+search{%for dom in search_domains %} {{ dom }}{% endfor %}
+
+{% endif %}
+{% if resolvers is defined %}
+{% for resolver in resolvers %}
+nameserver {{ resolver }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,23 @@
+checktimeout={{ checktimeout | default(5) }}
+negotiatetimeout={{ negotiatetimeout | default(30) }}
+checkinterval={{ checkinterval | default(10} }}
+checkcount={{ checkcount | default(1) }}
+failurecount={{ failurecount | default(1) }}
+autoreload={{ autoreload | default('no') }}
+callback={{ callback | default() }}
+quiescent={{ quiescent | default('yes') }}
+{% for vip in vips %}
+virtual = {{ vip.addr }}:{{ vip.port }}
+   {% for rip in vip.rips %}
+	real={{ rip.addr }}:{{ rip.port }} {{ vip.type }}
+   {% endfor %}
+{% if vip.fallback is defined %}{{ vip.fallback }}{% endif %}
+	service={{ vip.service }}
+	checktype={{ vip.checktype }}
+	request="/"
+	receive="OK"
+	scheduler=wrr
+	persistent=300
+	netmask=255.255.255.255
+	protocol=tcp
+{% endfor %}

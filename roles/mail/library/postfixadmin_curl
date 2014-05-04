@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+. /tmp/libs.sh
+
+if [ "`curl -f -s -k http://localhost/postfixadmin/setup.php`" ]; then
+	exit_changed
+fi
+
+exit_unchanged

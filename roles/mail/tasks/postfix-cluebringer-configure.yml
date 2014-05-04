@@ -1,0 +1,18 @@
+# file roles/mail/tasks/postfix-cluebringer-configure.yml
+- name: Create cbpolicyd database
+  mysql_db: name={{ cbpolicyd_db | default("cbpolicyd") }} login_user=root login_password={{ mysql_root_password }} state=present
+
+# zcat /usr/share/doc/postfix-cluebringer/database/policyd-db.mysql.gz | sed -e 's/TYPE=InnoDB/ENGINE=InnoDB/'  > /usr/share/doc/postfix-cluebringer/database/policyd-db.mysql.sql
+- name: Create cbpolicyd databass user and grant privileges
+  mysql_user: name={{ cbpolicyd_dbuser | default("cbpolicyd") }} password={{ cbpolicyd_dbpass }} priv={{ cbpolicyd_db | default("cbpolicyd") }}.*:ALL host='%' state=present
+  notify: import cluebringer database 
+
+- name: Configure postfix-cluebringer (several files are being deployed)
+  action: template src={{ item.src }} dest={{ item.dest }} owner=root group=root mode=0644
+  with_items:
+    - { src: 'postfix-cluebringer/cluebringer.conf.j2', dest: '/etc/cluebringer/cluebringer.conf' }
+    - { src: 'postfix-cluebringer/cluebringer-webui.conf.j2', dest: '/etc/cluebringer/cluebringer-webui.conf' }
+    - { src: 'postfix-cluebringer/postfix-cluebringer-apache2.conf.j2', dest: '/etc/apache2/conf.d/postfix-cluebringer' }
+
+- name: postfix-cluebringer service state
+  service: name=postfix-cluebringer state=started enabled=yes

@@ -1,0 +1,22 @@
+- name: Package iptables
+  action: apt name=iptables state=present
+  tags:
+    - firewall
+    - apt
+
+- name: Copy base file
+  action: template src=iptables.j2 dest=/etc/acs/iptables.rules
+  notify:
+    - restart iptables
+  tags:
+    - firewall
+
+- name: Copy init.d
+  action: copy src=firewall-init dest=/etc/init.d/firewall-acs mode=744
+  tags:
+    - firewall
+
+- name: Verify service
+  action: service name=firewall-acs enabled=yes state=started
+  tags:
+    - firewall

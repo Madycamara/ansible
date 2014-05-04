@@ -1,0 +1,22 @@
+- name: Configure apache2 (/etc/apache2/ports.conf)
+  action: template src=ports.conf.j2  dest={{ apache2_confdir |default('/etc/apache2') }}/ports.conf
+  notify: restart apache2
+
+- name: Apache2 service state
+  service: name=apache2 state=started enabled=yes
+
+#- name: Apache2 modules enable
+#  action: file src=/etc/apache2/mods-available/{{ item.mod }} dest=/etc/apache2/mods-enabled/{{ item.mod }} state=link
+#  with_items: 
+#    - "{{ apache2_global.mods }}"
+#    - "{{ apache2.mods }}"
+#  when: item.status is not defined or item.status == "enabled"
+#  tags: test
+#
+#- name: Apache2 modules disable
+#  action: file dest=/etc/apache2/mods-enabled/{{ item.mod }} state=absent
+#  with_items:
+#    - "{{ apache2_global.mods }}"
+#    - "{{ apache2.mods }}"
+#  when: item.status is defined and item.status == "disabled"
+#  tags: test

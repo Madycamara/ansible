@@ -1,0 +1,44 @@
+- name: Configure checks sudo
+  lineinfile: dest=/etc/sudoers state=present validate='visudo -cf %s'
+              regexp='{{ item.line }}'
+              line='Cmnd_Alias {{ item.line }}'
+              insertafter='^# Cmnd alias specification'
+  with_items:
+    - { line: "CHECK_APT=/usr/lib/nagios/plugins/check_apt" }
+    - { line: "CHECK_SMARTHD=/usr/lib/nagios/plugins/check_smarthds" }
+    - { line: "VIRT_WHAT=/usr/local/bin/virt-what" }
+    - { line: "FIND_CMD=/usr/bin/find" }
+    - { line: "LS_CMD=/bin/ls" }
+    - { line: "IPTABLES_CMD=/sbin/iptables" }
+    - { line: "CHECK_MX=/usr/lib/nagios/plugins/check_mx" }
+    - { line: "CHECK_WEBS=/usr/lib/nagios/plugins/check_webs" }
+  notify: restart nrpe
+
+- name: Configure nagios sudo user
+  lineinfile: dest=/etc/sudoers state=present validate='visudo -cf %s'
+              regexp='nagios ALL=NOPASSWD:{{ item.checks }}'
+              line='nagios ALL=NOPASSWD:{{ item.checks }}'
+              insertafter='^# User privilege specification'
+  with_items:
+    - { checks: "CHECK_APT,CHECK_SMARTHD,VIRT_WHAT,FIND_CMD,LS_CMD,IPTABLES_CMD,CHECK_MX,CHECK_WEBS"}
+
+- name: Multiple vars (dont_blame_nrpe, command_timeout)
+  lineinfile: dest=/etc/nagios/nrpe.cfg regexp='^{{ item.regexp }}' line='{{ item.line }}' state=present backrefs=yes
+  with_items:
+    - { regexp: dont_blame_nrpe, line: 'dont_blame_nrpe=1' }
+    - { regexp: command_timeout, line: 'command_timeout=1000' }
+  notify: restart nrpe
+
+- name: Allow IP of remote servers to check
+  lineinfile: dest=/etc/nagios/nrpe.cfg regexp='^allowed_hosts=' line='allowed_hosts={{ nagios_servers }}' state=present backrefs=yes
+  notify: restart nrpe
+
+- name: nrpe checks defaults
+  template: src=nagios_nrpe.j2 dest=/etc/nagios/nrpe.d/acs.cfg
+  notify: restart nrpe
+
+- name: Copy nagios checks
+  copy: src=nagios_checks/ dest=/usr/lib/nagios/plugins/
+
+- name: Verify service running
+  action: service name=nagios-nrpe-server state=started enabled=yes

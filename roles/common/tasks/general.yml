@@ -1,0 +1,53 @@
+- name: Pull common bash function libs
+  copy: src=../files/libs.sh dest=/tmp/libs.sh owner=root group=root mode=0755
+
+- name: Ensure locales exists
+  lineinfile: dest=/etc/locale.gen state=present regexp="^{{ item }}" line="{{ item }}" insertafter="^# {{ item }}"
+  with_items:
+    - "en_US.UTF-8 UTF-8"
+    - "es_ES.UTF-8 UTF-8"
+  notify:
+    - generate locale
+
+- name: Configure DNS Resolvers
+  action: template src=resolv.conf.j2 dest=/etc/resolv.conf
+
+- name: Configure interfaces
+  action: template src=interfaces.j2 dest=/etc/network/interfaces
+  tags: interfaces
+
+#- name: Configure repositories
+#  template: src=sources.list.j2 dest=/etc/apt/sources.list
+
+- name: Apt update
+  action: apt update_cache=yes
+  tags:
+    - apt-update
+
+- name: Apt upgrade (set '-e sys_upgrade="yes"' to not skip)
+  action: apt upgrade=yes
+  when: sys_upgrade == "yes"
+  tags: 
+    - apt-upgrade
+
+- name: Install sudo htop dstat iotop sysstat tcpdump wondershaper psmisc screen iftop localepurge less lshw multitail ncdu
+  apt: name={{item}} state=present
+  with_items:
+  - sudo
+  - htop
+  - dstat
+  - iotop
+  - sysstat
+  - tcpdump
+  - wondershaper
+  - psmisc
+  - screen
+  - iftop
+  - localepurge
+  - less
+  - lshw
+  - multitail
+  - ncdu
+  - lsb-release
+  tags:
+    - apt

@@ -1,0 +1,33 @@
+- name: Configure virtualhosts
+  action: template src=vhosts.conf.j2 dest={{ apache2_confdir |default('/etc/apache2') }}/sites-available/{{ item.servername }}
+  with_items: apache2_vhosts
+  when: apache2_vhosts is defined
+
+- name: Upload SSL Certificates
+  action: copy src={{ inventory_hostname }}/ssl/{{ item.servername }}.crt dest={{ apache2_confdir |default('/etc/apache2') }}/ssl.crt/{{ item.servername }}.crt
+  with_items: apache2_vhosts
+  when: item.ssl is defined and item.ssl == True
+  tags: ssl
+
+- name: Upload SSL keys
+  action: copy src={{ inventory_hostname }}/ssl/{{ item.servername }}.key dest={{ apache2_confdir |default('/etc/apache2') }}/ssl.key/{{ item.servername }}.key
+  with_items: apache2_vhosts
+  when: item.ssl is defined and item.ssl == True
+  tags: ssl
+
+- name: Create documents roots
+  action: file dest="{{ apache2_doc_root }}/{{ item.servername }}" state=directory mode=775
+  with_items: apache2_vhosts
+  when: apache2_vhosts is defined
+
+- name: Enable virtualhosts
+  action: file src={{ apache2_confdir |default('/etc/apache2') }}/sites-available/{{ item.servername }} dest={{ apache2_confdir |default('/etc/apache2') }}/sites-enabled/{{ item.servername }} state=link
+  with_items: apache2_vhosts 
+  when: apache2_vhosts is defined and item.enabled is not defined or item.enabled == True
+  notify: restart apache2
+
+- name: Disable virtualhosts
+  action: file dest={{ apache2_confdir |default('/etc/apache2') }}/sites-enabled/{{ item.servername }} state=absent
+  with_items: apache2_vhosts
+  when: apache2_vhosts is defined and item.enabled is defined and item.enabled == False
+  notify: restart apache2

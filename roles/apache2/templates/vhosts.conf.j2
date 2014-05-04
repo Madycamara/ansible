@@ -1,0 +1,31 @@
+{% if item.nvh is defined and apache2_namevirtualhost is defined and apache2_namevirtualhost[item.nvh] is defined %}
+<VirtualHost {{ apache2_namevirtualhost[item.nvh].name }}:{{ apache2_namevirtualhost[item.nvh].port | default('80') }}> 
+{% else %}
+<VirtualHost *:{{ apache2_default_port | default('80') }}
+{% endif %}
+	ServerName {{ item.servername }}
+{% if item.serveralias is defined %}
+{% for alias in item.serveralias %}
+	ServerAlias {{ alias }}
+{% endfor %}
+{% endif %}
+{% if item.documentroot is defined %}
+	DocumentRoot {{ item.documentroot }}
+{% else %}
+	DocumentRoot {{ apache2_doc_root }}/{{ item.servername }}
+{% endif %}
+{% if item.username is defined and item.groupname is defined%}
+	<IfModule mpm_itk_module>
+		AssignUserID {{ item.username }} {{ item.groupname }}
+	</IfModule>
+{% elif item.uid is defined and item.gid is defined %}
+	<IfModule mpm_itk_module>
+		AssignUserID #{{ item.uid }} #{{ item.gid }}
+	</IfModule>
+{% endif %}
+	CustomLog {{ apache2_log_dir }}/{{ item.servername }}-access.log combined
+	ErrorLog {{ apache2_log_dir }}/{{ item.servername }}-error.log 
+{% if item.extra is defined %}
+	{{ item.extra }}
+{% endif %}
+</VirtualHost>

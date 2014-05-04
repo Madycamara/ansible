@@ -1,0 +1,12 @@
+- name: Configure varnish repo
+  action: template src=varnish.list.j2 dest=/etc/apt/sources.list.d/varnish.list
+
+- name: Configure varnish repo key
+  action: apt_key id=C4DEFFEB url=http://repo.varnish-cache.org/debian/GPG-key.txt state=present
+
+- name: Install varnish
+  action: apt name={{ item }} state=present
+  with_items:
+    - varnish
+    - varnish-agent
+    - git

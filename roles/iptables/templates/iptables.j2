@@ -1,0 +1,43 @@
+{# Recorrem totes les possibles taules raw, filter, mangle... #}
+{% for table in [ "raw", "nat", "mangle", "filter" ] %}
+{% set policies = [] %}
+{% set rules = [] %}
+{# Busquem les policies per defecte de cada taula #}
+{% if iptables is defined and iptables[table] is defined and iptables[table]['policy'] is defined %}
+{% set policies = iptables[table]['policy']|list %}
+{% endif %}
+{% if iptables_global is defined and iptables_global[table] is defined and iptables_global[table]['policy'] is defined %}
+{% set policies = iptables_global[table]['policy']|list + policies|list %}
+{% endif %}
+{% if policies|length > 0 %}
+*{{ table }}
+{% endif %}
+{% for policy in policies %}
+:{{ policy.name }} {{ policy.action }}
+{% endfor %}
+{# Generacio regles #}
+{% if iptables_global is defined and iptables_global[table] is defined and iptables_global[table]['rules'] is defined %}
+{% set rules = iptables_global[table]['rules']|list %}
+{% endif %}
+{% if iptables is defined and iptables[table] is defined and iptables[table]['rules'] is defined %}
+{% set rules = rules|list + iptables[table]['rules']|list %}
+{% endif %}
+{% if rules is defined %}
+{% for item in rules %}
+{% if item.command is defined %}-{{ item.command }}{% else %}-A{% endif %} {{ item.chain }}
+{%- if item.protocol is defined %} -p {{ item.protocol }}{% endif %}
+{%- if item.match is defined %} -m {{ item.match }}{% else %}{%if item.protocol is defined %} -m {{ item.protocol }}{% endif %}{% endif %}
+{# Opcions per diferents moduls #}
+{%- if item.dports is defined %} --dports {{ item.dports }}{% endif %}
+{%- if item.dport is defined %} --dport {{ item.dport }}{% endif %}
+{%- if item.state is defined %} --state {{ item.state }}{% endif %}
+{%- if item.tcpflags is defined %} --tcp-flags {{ item.tcpflags }}{% endif %}
+{%- if item.icmptype is defined %} --icmp-type {{ item.icmptype }}{% endif %}
+{%- if item.sport is defined%} --sport {{ item.sport }}{% endif %}
+{%- if item.src is defined %} -s {{ item.src }}{% endif %} -j {{ item.jump }}
+{% endfor %}
+{% endif %}
+{% if policies|length > 0 %}
+COMMIT
+{% endif %}
+{% endfor %}

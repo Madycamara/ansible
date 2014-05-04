@@ -1,0 +1,2 @@
+- name: Install sudo
+  action: apt pkg=sudo state=present

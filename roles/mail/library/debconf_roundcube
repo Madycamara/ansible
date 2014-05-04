@@ -1,0 +1,56 @@
+#!/bin/bash
+
+set -e
+source /tmp/libs.sh
+
+#exit_changed() { 
+#	echo "changed=True msg=OK"
+#	exit 0
+#}
+#
+#exit_unchanged() { 
+#	echo "changed=False msg=OK"
+#	exit 0
+#}
+
+. $1
+
+cat <<EOF | debconf-set-selections --unseen
+roundcube-core  roundcube/password-confirm      password $roundcube_pass 
+roundcube-core  roundcube/mysql/admin-pass      password $mysql_pass
+roundcube-core  roundcube/mysql/app-pass        password $mysql_pass 
+roundcube-core  roundcube/app-password-confirm  password $roundcube_pass 
+roundcube-core  roundcube/dbconfig-reinstall    boolean true
+roundcube-core  roundcube/mysql/method  select  tcp/ip
+roundcube-core  roundcube/upgrade-error select  abort
+roundcube-core  roundcube/pgsql/authmethod-user select  password
+roundcube-core  roundcube/purge boolean false
+roundcube-core  roundcube/dbconfig-install      boolean true
+roundcube-core  roundcube/db/dbname     string  roundcube
+roundcube-core  roundcube/language      select  en_US
+roundcube-core  roundcube/remove-error  select  abort
+roundcube-core  roundcube/remote/newhost        string  localhost
+roundcube-core  roundcube/restart-webserver     boolean true
+roundcube-core  roundcube/upgrade-backup        boolean true
+roundcube-core  roundcube/dbconfig-upgrade      boolean true
+roundcube-core  roundcube/install-error select  retry
+roundcube-core  roundcube/remote/port   string  3306 
+roundcube-core  roundcube/mysql/admin-user      string  root
+roundcube-core  roundcube/hosts string  localhost
+roundcube-core  roundcube/db/basepath   string
+roundcube-core  roundcube/dbconfig-remove       boolean
+roundcube-core  roundcube/internal/reconfiguring        boolean false
+roundcube-core  roundcube/reconfigure-webserver multiselect     apache2
+roundcube-core  roundcube/database-type select  mysql
+roundcube-core  roundcube/remote/host   select  localhost
+roundcube-core  roundcube/internal/skip-preseed boolean false
+roundcube-core  roundcube/db/app-user   string  roundcube
+roundcube-core  roundcube/missing-db-package-error      select  abort
+EOF
+
+if [ "$?" == "0" ]; then
+  exit_unchanged
+  exit 0
+fi
+
+exit_unchanged

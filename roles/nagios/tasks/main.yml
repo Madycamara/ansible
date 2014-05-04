@@ -1,0 +1,13 @@
+#- name: Install nagios
+#  action: apt name=nagios3 state=present
+#  tags:
+#    - nagios
+#    - apt
+
+- name: Nagios conf dir
+  action: file dest=/tmp/nagios3/conf.d state=directory
+  delegate_to: fw
+
+- name: Configure hosts
+  action: template src=hosts.cfg.j2 dest=/tmp/nagios3/conf.d/{{ inventory_hostname }}.cfg
+  delegate_to: fw

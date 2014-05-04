@@ -1,0 +1,15 @@
+- name: Configure zabbix sources.list
+  action: template src=zabbix.list.j2 dest=/etc/apt/sources.list.d/zabbix.list
+  register: repoupdate
+
+- name: Configure zabbix repo key
+  action: apt_key id=79EA5ED4 url=http://repo.zabbix.com/zabbix-official-repo.key state=present
+
+- name: Update apt
+  action: apt update_cache=yes
+  when: repoupdate|changed
+
+- name: Install zabbix agent
+  action: apt name={{ item }} state=present
+  with_items:
+    - zabbix-agent

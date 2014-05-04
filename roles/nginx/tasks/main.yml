@@ -1,0 +1,2 @@
+- include: install.yml tags=nginx,apt
+- include: configure.yml tags=nginx

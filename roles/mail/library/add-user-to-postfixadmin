@@ -1,0 +1,30 @@
+#!/bin/sh
+
+
+set -e
+
+exit_changed() { 
+	echo "changed=True msg=OK"
+	exit 0
+}
+
+exit_unchanged() { 
+	echo "changed=False msg=OK"
+	exit 0
+}
+
+# include arguments file
+. $1
+
+# We are lying about data not being changed because the queries write data if there aren't any and/or overwrite them if there already are some.
+# These queries never give error. The mysql connection can give an error, though.
+
+user_in_db=$(mysql -N -B -e "select username from admin where username='$user'" postfixadmin)
+if [ "$user_in_db" = "$user" ];then
+     exit_unchanged
+fi
+
+mysql -N -B -e "INSERT IGNORE INTO admin VALUES('$user', '$pass', NOW(), NOW(), 1);" postfixadmin || exit_unchanged
+mysql -N -B -e "INSERT INTO domain_admins (username, domain, created, active) SELECT * FROM (SELECT '$user', 'ALL', NOW(),1) AS TMP WHERE NOT EXISTS (SELECT username FROM domain_admins WHERE username = '$user') LIMIT 1;" postfixadmin || exit_unchanged
+
+exit_changed

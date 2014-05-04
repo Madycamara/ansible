@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /usr/local/lib/acs/load-acs.sh
+. /etc/acs/backup
+
+if [ "$BACKUPMIN" != "yes" ]; then
+	print_term "Backupmin no està activat"
+	exit 0
+fi
+
+TAR="/bin/tar"
+LABEL="Backup-`/bin/date +%Y-%m-%d`"
+
+$TAR cfz $BACKUPDIR/$LABEL.tgz -C / $BMINDIRS -V $LABEL
+
+find $BACKUPDIR -name "Backup-*" -ctime $BACKUPDAYS -exec rm {} \;

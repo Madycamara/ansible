@@ -1,0 +1,30 @@
+#!/bin/sh
+
+set -e
+
+exit_changed() {
+   echo "changed=True msg=OK"
+   exit 0
+}
+
+
+exit_unchanged() {
+   echo "changed=False msg=OK"
+   exit 0
+}
+
+cd /etc/pure-ftpd
+if [ -f pureftpd.pdb ]; then
+	pure-pw mkdb pureftpd.pdb.ans
+else
+	pure-pw mkdb pureftpd.pdb
+   exit_changed
+fi
+
+if [ "$(md5sum pureftpd.pdb)" != "$(md5sum pureftpd.pdb.ans)" ]; then 
+	mv pureftpd.pdb.ans pureftpd.pdb
+	exit_changed
+else 
+	rm pureftpd.pdb.ans
+	exit_unchanged
+fi

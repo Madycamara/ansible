@@ -1,0 +1,24 @@
+- name: Configure zabbix agent
+  action: template src={{ item }} dest=/etc/zabbix/zabbix_agentd.conf
+  with_first_found:
+    - files:
+        - zabbix-agentd_{{ ansible_distribution }}{{ ansible_lsb.major_release }}.conf.j2
+        - zabbix-agentd.conf.j2
+      paths:
+        - ../templates
+  notify: restart zabbix
+
+- name: Verify zabbix dirs
+  action: file dest={{ item }} state=directory owner=zabbix
+  with_items:
+    - /var/run/zabbix
+    - /var/log/zabbix
+    - /etc/zabbix/zabbix_agentd.d/
+
+- name: Configure zabbix userparameters
+  action: template src=userparameters/{{ item }}.conf dest=/etc/zabbix/zabbix_agentd.d/{{ item }}.conf owner=zabbix
+  with_items:
+    - varnish
+
+- name: Verify zabbix agent service
+  action: service name=zabbix-agent state=started

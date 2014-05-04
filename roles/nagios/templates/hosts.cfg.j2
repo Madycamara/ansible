@@ -1,0 +1,17 @@
+define host{
+        use             generic-host
+        host_name       {{ inventory_hostname }}
+        alias           {{ inventory_hostname }}
+        address         {{ ansible_default_ipv4.address }}
+{% if group_names|length > 0 %}        hostgroups      {% for group in group_names %}{{ group }},{% endfor %}{% endif %}
+}
+{% if nagios_checks is defined and nagios_checks|length > 0 %}
+{% for check in nagios_checks %}
+define service {
+        use generic-service
+        host_name {{ inventory_hostname }} 
+        service_description {{ check.name }}
+        check_command {{ check.check }}
+}
+{% endfor %}
+{% endif %}

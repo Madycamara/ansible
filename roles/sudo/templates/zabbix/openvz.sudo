@@ -1,0 +1,5 @@
+## Allow zabbix access to OpenVZ's resources (zbx_OpenVZ-0.10.xml only)
+Cmnd_Alias MON_OVZ_UBC = /usr/bin/install -o zabbix -g zabbix -m 440 /proc/user_beancounters /var/lib/zabbix/user_beancounters
+Cmnd_Alias MON_OVZ_HN = /usr/sbin/vzmemcheck, /usr/sbin/vzmemcheck -A
+Defaults:zabbix !requiretty
+zabbix ALL = NOPASSWD: MON_OVZ_UBC, MON_OVZ_HN

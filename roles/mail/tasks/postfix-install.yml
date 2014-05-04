@@ -1,0 +1,10 @@
+- name: Install postfix
+  apt: name={{ item }} state=present
+  with_items:
+   - postfix
+   - postfix-mysql
+  tags:
+    - apt
+
+- name: postfix service state
+  service: name=postfix state=started enabled=yes

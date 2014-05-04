@@ -1,0 +1,30 @@
+- name: Configure varnish
+  action: template src=varnish.j2 dest=/etc/varnish/default.vcl
+#  action: template src={{ item }} dest=/etc/varnish/default.vcl
+#  with_first_found:
+#    - varnish.j2
+#    - "{{ inventory_hostname }}/varnish.j2"
+  notify: restart varnish
+
+#- name: Verify custom dir exist
+#  action: file dest=/etc/varnish/custom state=directory
+#
+#- name: Verify custom files exists
+#  action: file dest=/etc/varnish/custom/{{ item }}.vcl state=file
+#  with_items:
+#    - recv 
+#    - pipe 
+#    - pass 
+#    - hash 
+#    - hit 
+#    - miss 
+#    - fetch 
+#    - deliver 
+#    - error 
+#    - init
+#    - fini
+#  notify: restart varnish
+
+
+- name: Verify varnish state
+  action: service name=varnish state=started

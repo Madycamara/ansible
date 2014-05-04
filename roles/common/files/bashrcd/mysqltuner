@@ -1,0 +1,1 @@
+alias mysqltuner.pl='wget -O /dev/stdout -q --no-check-certificate http://mysqltuner.pl|perl'

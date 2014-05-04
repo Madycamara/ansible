@@ -1,0 +1,23 @@
+- name: Copy local libs
+  local_action: copy src=../files/libs.sh dest=/tmp/libs.sh
+
+- name: Enroll host in IRM
+  local_action: irm 
+                kernel="{{ hostvars[inventory_hostname]['ansible_kernel'] }}" 
+                ip="{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" 
+                interface="{{ hostvars[inventory_hostname]['ansible_default_ipv4']['interface'] }}" 
+                distribution="{{ hostvars[inventory_hostname]['ansible_distribution'] }}" 
+                distribution_version="{{ hostvars[inventory_hostname]['ansible_distribution_version'] }}" 
+                ram="{{ hostvars[inventory_hostname]['ansible_memtotal_mb'] }}" 
+                disk="{{ hostvars[inventory_hostname]['ansible_mounts'][0]['size_total'] }}" 
+                processor="{{ hostvars[inventory_hostname]['ansible_processor'][0] }}" 
+                cpu_cores="{{ hostvars[inventory_hostname]['ansible_processor_cores'] }}" 
+                virt_type="{{ hostvars[inventory_hostname]['ansible_virtualization_type']|default('server_type') }}" 
+                server_type="{{ hostvars[inventory_hostname]['ansible_product_name'] }}" 
+                hostname="{{ inventory_hostname }}" 
+                serial="{{ hostvars[inventory_hostname]['ansible_product_serial'] }}" 
+                customer_contact="{{ customer_contact }}"
+                irm_db_host="{{ irm_db_host }}"
+                irm_db_port="{{ irm_db_port }}"
+                irm_db_user="{{ irm_db_user }}"
+                irm_db_password="{{ irm_db_password }}"

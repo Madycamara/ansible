@@ -1,0 +1,11 @@
+- name: Install postfix-cluebringer postfix-cluebringer-mysql postfix-cluebringer-webui 
+  apt: name={{ item }} state=present
+  with_items:
+   - postfix-cluebringer 
+   - postfix-cluebringer-mysql
+   - postfix-cluebringer-webui
+  tags:
+    - apt
+
+- name: postfix-cluebringer service state
+  service: name=postfix-cluebringer state=stopped enabled=yes

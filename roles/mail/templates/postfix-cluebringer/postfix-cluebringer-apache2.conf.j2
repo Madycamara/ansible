@@ -1,0 +1,11 @@
+Alias /cluebringer /usr/share/postfix-cluebringer-webui/webui
+
+<Directory /usr/share/postfix-cluebringer-webui/webui>
+    # Comment out the following 3 lines to make web ui accessible from anywhere
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+    Allow from 80.94.1.200/29
+    Allow from ::1
+    DirectoryIndex index.php
+</Directory>

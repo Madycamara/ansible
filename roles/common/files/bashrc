@@ -1,0 +1,8 @@
+# Carreguem lo que hi hagi al direcotri ~/.bashrc.d
+#
+# No editis aquest arxiu! Si necessites posar quelcom,
+# crea un arxiu a ~/.bashrc.d
+
+if [ -x /usr/local/acs-sbin/load-bashrcd-acs.sh ]; then
+	. /usr/local/acs-sbin/load-bashrcd-acs.sh
+fi

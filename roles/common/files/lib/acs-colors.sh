@@ -1,0 +1,8 @@
+export RED="\e[0;31m"
+export GREEN="\e[0;32m"
+export ORANGE="\e[0;33m"
+export YELLOW="\e[1;33m"
+export BLUE="\e[1;34m"
+export LILA="\e[0;35m"
+export CYAN="\e[1;36m"
+export OFF="\e[m"

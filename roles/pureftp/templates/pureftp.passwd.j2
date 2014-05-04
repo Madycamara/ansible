@@ -1,0 +1,6 @@
+{{ pureftp_default_user }}:{{ pureftp_default_user_pass }}:{{ webmaster_uid }}:{{ webmaster_gid }}::/var/www::::::::::::
+{% if pureftp_users is defined %}
+{% for user in pureftp_users %}
+{{ user.user }}:{{ user.pass }}:{{ webmaster_uid }}:{{ webmaster_gid }}::{{ user.home }}::::::::::::
+{% endfor %}
+{% endif %}

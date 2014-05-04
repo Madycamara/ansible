@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+
+auto lo
+iface lo inet loopback
+
+{% if interfaces is defined and interfaces|length > 0 %}
+{% for interface in interfaces %}
+auto {{ interface.name }}
+iface {{ interface.name }} inet static
+	address {{ interface.ipv4 }}
+	netmask {{ interface.netmask }}
+{% if interface.gw is defined %}	gateway {{ interface.gw }}{% endif %}
+
+{% if interface.rules is defined and interface.rules|length > 0 %}
+{% for rule in interface.rules %}
+	{{ rule }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}

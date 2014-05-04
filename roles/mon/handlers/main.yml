@@ -1,0 +1,5 @@
+- name: restart nrpe
+  action: service name=nagios-nrpe-server state=restarted
+
+- name: restart snmpd
+  action: service name=snmpd state=restarted

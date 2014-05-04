@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -e
+
+exit_changed() { 
+	echo "changed=True msg=OK"
+	exit 0
+}
+
+
+exit_unchanged() { 
+	echo "changed=False msg=OK"
+	exit 0
+}
+
+infile="/etc/postfix/rcpt_checks.in"
+infiledb="/etc/postfix/rcpt_checks.in.db"
+outfiledb="/etc/postfix/rcpt_checks.db"
+
+
+postmap $infile 
+
+if [ ! -f  $outfiledb ];then
+      mv $infiledb $outfiledb 
+      exit_changed
+fi
+
+if [[ `diff $infiledb $outfiledb` ]] ; then
+      mv $infiledb $outfiledb 
+      exit_changed
+fi 
+
+rm  $infiledb
+exit_unchanged

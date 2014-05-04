@@ -1,0 +1,41 @@
+- name: Install pureftpd
+  action: apt name=pure-ftpd state=present
+  tags:
+    - apt
+
+- name: Create /etc/pure-ftpd/auth/50PureDB link
+  action: file src=/etc/pure-ftpd/conf/PureDB dest=/etc/pure-ftpd/auth/50PureDB state=link
+  notify: restart pure-ftpd
+
+- name: Configure pure-ftpd
+  action: template src=pureftpd-base.j2 dest=/etc/pure-ftpd/conf/{{ item.dest }}
+  with_items:
+    - { dest: AllowDotFiles, value: "{{ pureftp_AllowDotFiles }}" }
+    - { dest: AltLog, value: "{{ pureftp_AltLog }}" }
+    - { dest: ChrootEveryone, value: "{{ pureftp_ChrootEveryone }}" }
+    - { dest: CreateHomeDir, value: "{{ pureftp_CreateHomeDir }}" }
+    - { dest: CustomerProof, value: "{{ pureftp_CustomerProof }}" }
+    - { dest: MinUID, value: "{{ pureftp_MinUID }}" }
+    - { dest: NoAnonymous, value: "{{ pureftp_NoAnonymous }}" }
+    - { dest: NoTruncate, value: "{{ pureftp_NoTruncate }}" }
+    - { dest: PAMAuthentication, value: "{{ pureftp_PAMAuthentication }}" }
+    - { dest: PassivePortRange, value: "{{ pureftp_PassivePortRange }}" }
+    - { dest: PureDB, value: "{{ pureftp_PureDB }}" }
+    - { dest: UnixAuthentication, value: "{{ pureftp_UnixAuthentication }}" }
+  notify: restart pure-ftpd
+
+- name: Create pure-ftp users
+  action: template src=pureftp.passwd.j2 dest=/etc/pure-ftpd/pureftpd.passwd
+  notify: pureftp mkdb
+
+- name: Verify pureftpd.pdb
+  action: file dest=/etc/pure-ftpd/pureftpd.pdb owner=root state=file
+  register: result
+  ignore_errors: True
+
+- name: Force creation of pureftpd.pdb
+  action: purepw-mkdb
+  when: result|failed
+
+- name: Pure-ftpd service state
+  service: name=pure-ftpd state=started enabled=yes

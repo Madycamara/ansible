@@ -1,0 +1,3 @@
+- name: Configure php.ini
+  action: template src=php.ini.j2  dest={{ php5_confdir | default('/etc/php5/apache2') }}/php.ini
+  notify: restart apache2

@@ -1,0 +1,8 @@
+- name: Configure roundcube (push several templates)
+  action: template src={{ item.src }} dest={{ item.dest }} owner={{ item.owner }} group={{ item.group }} mode={{ item.mode }}
+  with_items:
+      - { src: 'roundcube/main.inc.php.j2', dest: '/etc/roundcube/main.inc.php', owner: 'root', group: 'www-data', mode: 640 }
+      - { src: 'roundcube/plugins_managesieve_config.inc.php.j2', dest: '/etc/roundcube/plugins/managesieve/config.inc.php', owner: 'root', group: 'root', mode: 644 }
+      - { src: 'roundcube/apache.conf.j2', dest: '/etc/roundcube/apache.conf', owner: 'root', group: 'www-data',  mode: 644 }
+  notify:
+      - restart apache2

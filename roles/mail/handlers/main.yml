@@ -1,0 +1,16 @@
+---
+- name: postmap rcpt_checks
+  action: postmap-rcpt-check
+
+- name: restart postfix
+  service: name=postfix state=restarted
+
+- name: restart dovecot
+  service: name=dovecot state=restarted
+
+- name: restart apache2
+  service: name=apache2 state=restarted
+
+# zcat /usr/share/doc/postfix-cluebringer/database/policyd-db.mysql.gz | sed -e 's/TYPE=InnoDB/ENGINE=InnoDB/'  > /usr/share/doc/postfix-cluebringer/database/policyd-db.mysql.sql
+- name: import cluebringer database
+  mysql_db: name={{ cbpolicyd_db | default("cbpolicyd") }} login_user=root login_password={{ mysql_root_password }} state=import target="/usr/share/doc/postfix-cluebringer/database/policyd-db.mysql.sql"

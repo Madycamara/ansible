@@ -1,0 +1,2 @@
+- include: install.yml tags=apt,php5
+- include: configure.yml tags=php5

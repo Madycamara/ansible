@@ -1,0 +1,16 @@
+{% if apache2_namevirtualhost is defined %}
+{% for  nvh in apache2_namevirtualhost %}
+NameVirtualHost {{ apache2_namevirtualhost[nvh].name }}:{{ apache2_namevirtualhost[nvh].port | default('80') }}
+{% endfor %}
+{% else %}
+NameVirtualHost *:{{ apache2_default_listen_port | default('80') }}
+Listen 80
+{% endif %}
+
+<IfModule mod_ssl.c>
+    Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+    Listen 443
+</IfModule>

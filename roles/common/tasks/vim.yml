@@ -1,0 +1,7 @@
+- name: Install vim
+  action: apt name=vim state=present
+  tags:
+    - apt
+
+- name: Configure vim
+  action: template src=vimrc.j2 dest=/etc/vim/vimrc

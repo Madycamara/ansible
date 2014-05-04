@@ -1,0 +1,3 @@
+- include: install.yml tags=mon,apt
+- include: snmpd-configure.yml tags=mon,snmpd
+- include: nrpe-configure.yml tags=mon,nrpe

@@ -1,0 +1,10 @@
+{% if sudoers_cmd_alias is defined %}
+{% for name, bin in sudoers_cmd_alias.iteritems() %}
+Cmnd_Alias	{{ name }}={{ bin }}
+{% endfor %}
+{% endif %}
+{% if sudoers_perms is defined %}
+{% for user, perm in sudoers_perms.iteritems() %}
+{{ user }}	{{ perm }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,7 @@
+- name: Preseed postfix answers
+  action: debconf_postfix
+
+- name: Install postfix
+  apt: name=postfix state=present
+  tags:
+    - apt

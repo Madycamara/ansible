@@ -1,0 +1,13 @@
+- name: Create path /etc/acs
+  action: file path=/etc/acs state=directory owner=root group=root
+
+- name: Pull several legacy directories and files (static)
+  action: copy src={{ item.src }} dest={{ item.dest }} owner=root group=root
+  with_items:
+   - { src: 'scripts/', dest: '/usr/local/acs-sbin/' }
+   - { src: 'lib/', dest: '/usr/local/lib/acs/' }
+
+- name: Pull some more legacy directories and files (customizable)
+  action: template src={{ item.src }} dest={{ item.dest }} owner=root group=root
+  with_items:
+   - { src: 'backup.j2', dest: '/etc/acs/backup' }

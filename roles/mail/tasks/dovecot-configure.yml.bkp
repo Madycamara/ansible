@@ -1,0 +1,53 @@
+- name: Setup vmail group
+  group: name=vmail gid=500 state=present
+
+- name: Setup vmail user
+  action: user name=vmail uid=500 group=vmail shell=/bin/false createhome=no home=/home/mail state=present 
+
+- name: Check that the /home/mail direcotry exists
+  action: file path=/home/mail state=directory owner=vmail group=vmail mode=0755 
+
+- name: Configure dovecot ( /etc/dovecot/dovecot-sql-conf.ext)
+  action: template src=dovecot/dovecot-sql.conf.ext.j2 dest=/etc/dovecot/dovecot-sql.conf.ext owner=root group=root mode=0640
+
+- name: Configure dovecot ( /etc/dovecot/dovecot-dict-sql.conf.ex)
+  action: template src=dovecot/dovecot-dict-sql.conf.ext.j2 dest=/etc/dovecot/dovecot-dict-sql.conf.ext owner=root group=root mode=0640
+
+- name: Configure dovecot ( /etc/dovecot/conf.d/10-auth.conf)
+  action: template src=dovecot/conf.d/10-auth.conf.j2 dest=/etc/dovecot/conf.d/10-auth.conf owner=root group=root mode=0644
+
+- name: Configure dovecot ( /etc/dovecot/conf.d/10-master.conf)
+  action: template src=dovecot/conf.d/10-master.conf.j2 dest=/etc/dovecot/conf.d/10-master.conf owner=root group=root mode=0644
+
+- name: Configure dovecot ( /etc/dovecot/conf.d/15-lda.conf)
+  action: template src=dovecot/conf.d/15-lda.conf.j2 dest=/etc/dovecot/conf.d/15-lda.conf owner=root group=root mode=0644
+
+- name: Configure dovecot ( /etc/dovecot/conf.d/20-imap.conf)
+  action: template src=dovecot/conf.d/20-imap.conf.j2 dest=/etc/dovecot/conf.d/20-imap.conf owner=root group=root mode=0644
+
+- name: Configure dovecot (/etc/dovecot/conf.d/90-sieve.conf)
+  action: template src=dovecot/conf.d/90-sieve.conf.j2 dest=/etc/dovecot/conf.d/90-sieve.conf owner=root group=root mode=0644
+
+# Decoment this to activate defult sieve rule. You must edit dovecot/conf.d/90-sieve.conf.j2 first
+#- name: Check that /var/lib/dovecot/sieve exists 
+#  action: file path=/var/lib/dovecot state=directory  mode=0755 
+
+#- name: Check that /var/lib/dovecot/sieve exists 
+#  action: file path=/var/lib/dovecot/sieve state=directory owner=vmail group=vmail mode=0755 
+
+#- name: Configure dovecot (/var/lib/dovecot/sieve/default.sieve)
+#  action: template src=dovecot/var_lib_dovecot_sieve_dovecot.sieve.j2 dest=/var/lib/dovecot/sieve/default.sieve owner=vmail group=vmail mode=0644
+
+#- name: Compile default.sieve
+#  action: command /usr/bin/sievec /var/lib/dovecot/sieve/default.sieve 
+
+#- name: Check permissions /var/lib/dovecot/sieve/default.svbin
+#  action: file path=/var/lib/dovecot/sieve/default.svbin owner=vmail group=vmail mode=0755 
+#  notify:
+#    - restart dovecot
+
+- name: Restart dovecot
+  service: name=dovecot state=restarted 
+
+- name: Check dovecot running
+  service: name=dovecot state=started enabled=true

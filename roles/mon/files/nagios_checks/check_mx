@@ -1,0 +1,35 @@
+#!/bin/bash
+if [ -e /etc/nagios/check_mx ]; then
+        source /etc/nagios/check_mx
+else
+        echo "Script sense configurar"
+        exit 1
+fi
+COUNT=0
+IPS=$(ifconfig |grep "inet addr"|cut -d":" -f2|cut -d" " -f1)
+
+for i in $DOMS; do
+        host -t mx $i |grep -i -E "$VALIDMX" > /dev/null
+        if [ $? -ne 0 ]; then
+                MXS=$(host -t mx $i|grep "handled by"|cut -d\  -f7)
+                ADD=1
+                for MX in $MXS; do
+                        HOST=$(host -t A $MX|grep address|cut -d\  -f4)
+                        echo $IPS|grep "$HOST" >/dev/null
+                        if [ $? -eq 0 ]; then
+                                ADD=0
+                        fi
+                done
+                if [ $ADD -eq 1 ]; then
+                        COUNT=$(expr $COUNT + 1)
+                        OUT="${OUT} $i;"
+                fi
+        fi
+done
+if [ $COUNT -gt 0 ]; then
+        echo "Total: $COUNT; LIST:$OUT"
+        exit 2
+else
+        echo "OK"
+        exit 0
+fi

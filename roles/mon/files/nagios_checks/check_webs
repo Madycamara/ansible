@@ -1,0 +1,41 @@
+#!/bin/bash
+if [ -e /etc/nagios/check_webs ]; then
+	source /etc/nagios/check_webs
+else
+	echo "Script sense configurar"
+	exit 1
+fi
+
+IPS=$(ifconfig |grep "inet addr"|cut -d":" -f2|cut -d" " -f1)
+IPCOUNT=0
+NOCOUNT=0
+for i in $HTTPHOSTS; do
+	if [ $(echo "$EXCLUDE"|grep "$i"|wc -l) -eq 0 ]; then
+	        HOST=$(host $i 80.94.0.70|grep address|cut -d" " -f4)
+	        if [ $? -eq 0 -a ! -z "$HOST" ]; then
+	                echo $IPS|grep $HOST > /dev/null
+	                if [ $? -ne 0 ]; then
+				IPCOUNT=$(expr $IPCOUNT + 1)
+				IPOUT="${IPOUT}Domini: $i; "
+	                fi
+	        else
+			NOCOUNT=$(expr $NOCOUNT + 1)
+			NOOUT="${NOOUT}Domini: $i; "
+	        fi
+	fi
+done
+
+if [ $IPCOUNT -gt 0 -o $NOCOUNT -gt 0 ]; then
+	TXT="CRITICAL!"
+	if [ $IPCOUNT -gt 0 ]; then
+		TXT="$TXT Total IP incorrecte: $IPCOUNT = $IPOUT"
+	fi
+	if [ $NOCOUNT -gt 0 ]; then
+		TXT="$TXT Total no resolen: $NOCOUNT = $NOOUT"
+	fi
+	echo "$TXT"
+	exit 2
+else
+	echo "OK"
+	exit 0
+fi

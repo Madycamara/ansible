@@ -1,0 +1,5 @@
+- name: Copy bashrc files
+  action: copy src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: bashrc, dest: /root/.bashrc }
+    - { src: bashrcd/, dest: /root/.bashrc.d/ }

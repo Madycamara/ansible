@@ -1,0 +1,15 @@
+- name: "Install base packages: apache2-mpm-itk"
+  action: apt name={{ item }} state=present
+  with_items:
+   - apache2
+   - apache2-mpm-itk
+  tags: 
+   - apt
+
+- name: Install extra apache modules
+  action: apt name={{ item }} state=present
+  with_items: apache2_modules_install
+  when: apache2_modules_install is defined
+
+- name: Apache2 service state
+  action: service name=apache2 state=started enabled=yes

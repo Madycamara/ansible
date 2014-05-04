@@ -1,0 +1,16 @@
+- name: Copy template files
+  template: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: default_snmpd.j2, dest: /etc/default/snmpd }
+  notify: restart snmpd
+
+- name: Configure snmpd.conf (add default lines)
+  lineinfile: dest=/etc/snmp/snmpd.conf
+              regexp="{{ item.regexp }}"
+              line="{{ item.line }}"
+              state=present backrefs=yes
+  with_items:
+    - { regexp: "^sysLocation", line: "sysLocation\tACS CD" }
+    - { regexp: "^sysContact", line: "sysContact\tACS <support@acs.li" }
+    - { regexp: "^agentAddress", line: "agentAddress\tudp:0.0.0.0:161" }
+  notify: restart snmpd

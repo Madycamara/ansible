@@ -1,0 +1,4 @@
+- name: Locales
+  action: locale_gen name={{ item }} state=present
+  with_items:
+    - en_US.UTF8

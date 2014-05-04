@@ -1,0 +1,20 @@
+#!/bin/sh
+
+
+set -e
+. /tmp/libs.sh
+
+
+debconf_sha1_before=$(cat /var/cache/debconf/*|sha1sum|awk '{print $1'})
+
+/usr/share/debconf/fix_db.pl
+
+debconf_sha1_after=$(cat /var/cache/debconf/*|sha1sum|awk '{print $1'})
+
+echo "before: $debconf_sha1_before after: $debconf_sha1_after"
+
+if [ "$debconf_sha1_before" = "$debconf_sha1_after" ];then
+  exit_unchanged
+fi
+
+exit_changed

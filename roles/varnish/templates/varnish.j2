@@ -1,0 +1,63 @@
+{% for backend in varnish_backends %}
+backend {{ backend.name }} {
+{% for key, value in backend.iteritems() %}
+{% if key != 'name' %}
+	.{{ key }} = {{ value }};
+{% endif %}
+{% endfor %}
+}
+{% endfor %}
+{% if varnish_directors is defined %}
+{% for director in varnish_directors %}
+director {{ director.name }} {{ director.director }} {
+	{% for backend in director.backends %}
+	{
+		.backend = "{{ backend }}";
+	}
+	{% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% if varnish_purgehosts is defined %}
+acl purgehosts {
+{% for host in varnish_purgehosts %}
+	"{{ host }}";
+{% endfor %}
+}
+{% endif %}
+
+sub vcl_recv {
+	set req.http.X-Full-Uri = req.http.host + req.url;
+	#include "custom/recv.vcl";
+}
+sub vcl_pipe {
+	#include "custom/pipe.vcl";
+}
+sub vcl_pass {
+	#include "custom/pass.vcl";
+}
+sub vcl_hash {
+	#include "custom/hash.vcl";
+}
+sub vcl_hit {
+	#include "custom/hit.vcl";
+}
+sub vcl_miss {
+	#include "custom/miss.vcl";
+}
+sub vcl_fetch {
+	#include "custom/fetch.vcl";
+}
+sub vcl_deliver {
+	#include "custom/deliver.vcl";
+}
+sub vcl_error {
+	#include "custom/error.vcl";
+}
+sub vcl_init {
+	#include "custom/init.vcl";
+}
+sub vcl_fini {
+	#include "custom/fini.vcl";
+}

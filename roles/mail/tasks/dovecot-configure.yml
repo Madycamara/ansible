@@ -1,0 +1,64 @@
+- name: Setup vmail group
+  group: name=vmail gid=500 state=present
+
+- name: Setup vmail user
+  action: user name=vmail uid=500 group=vmail shell=/bin/false createhome=no home=/home/mail state=present 
+
+- name: Check that the /home/mail direcotry exists
+  action: file path=/home/mail state=directory owner=vmail group=vmail mode=0755 
+  notify:
+    - restart dovecot
+
+- name: Configure dovecot (several files are being deployed)
+  action: template src={{ item.src }} dest={{ item.dest }} owner=root group=root mode=0644
+  with_items:
+    - { src: 'dovecot/dovecot-sql.conf.ext.j2', dest: '/etc/dovecot/dovecot-sql.conf.ext' }
+    - { src: 'dovecot/dovecot-dict-sql.conf.ext.j2', dest: '/etc/dovecot/dovecot-dict-sql.conf.ext' }
+    - { src: 'dovecot/conf.d/10-auth.conf.j2', dest: '/etc/dovecot/conf.d/10-auth.conf' }
+    - { src: 'dovecot/conf.d/10-master.conf.j2', dest: '/etc/dovecot/conf.d/10-master.conf' }
+    - { src: 'dovecot/conf.d/15-lda.conf.j2', dest: '/etc/dovecot/conf.d/15-lda.conf' }
+    - { src: 'dovecot/conf.d/20-imap.conf.j2', dest: '/etc/dovecot/conf.d/20-imap.conf' }
+    - { src: 'dovecot/conf.d/90-sieve.conf.j2', dest: '/etc/dovecot/conf.d/90-sieve.conf' }
+  notify:
+    - restart dovecot
+
+# Activate defult sieve rule. You must edit dovecot/conf.d/90-sieve.conf.j2 first
+# sieve_default = /var/lib/dovecot/sieve/default.sieve
+# sieve_global_dir = /var/lib/dovecot/sieve/
+
+- name: Check that /var/lib/dovecot/sieve exists (set '-e default_sieve="yes"' to not skip) 
+  action: file path=/var/lib/dovecot state=directory  mode=0755 
+  when: default_sieve == "yes"
+  tags:
+    - dovecot_default_sieve
+
+- name: Check that /var/lib/dovecot/sieve exists (set '-e default_sieve="yes"' to not skip) 
+  action: file path=/var/lib/dovecot/sieve state=directory owner=vmail group=vmail mode=0755 
+  when: default_sieve == "yes"
+  tags:
+    - dovecot_default_sieve
+  
+
+- name: Configure dovecot (/var/lib/dovecot/sieve/default.sieve) (set '-e default_sieve="yes"' to not skip)
+  action: template src=dovecot/var_lib_dovecot_sieve_dovecot.sieve.j2 dest=/var/lib/dovecot/sieve/default.sieve owner=vmail group=vmail mode=0644
+  when: default_sieve == "yes"
+  tags:
+    - dovecot_default_sieve
+
+- name: Compile default.sieve (set '-e default_sieve="yes"' to not skip)
+  action: command /usr/bin/sievec /var/lib/dovecot/sieve/default.sieve 
+  when: default_sieve == "yes"
+  tags:
+    - dovecot_default_sieve
+
+- name: Check permissions /var/lib/dovecot/sieve/default.svbin (set '-e default_sieve="yes"' to not skip)
+  action: file path=/var/lib/dovecot/sieve/default.svbin owner=vmail group=vmail mode=0755 
+  when: default_sieve == "yes"
+  notify:
+    - restart dovecot
+  tags:
+    - dovecot_default_sieve
+# end dovecot sieve
+
+- name: Check dovecot running
+  service: name=dovecot state=started enabled=true

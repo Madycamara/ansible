@@ -1,0 +1,5 @@
+- name: Clone dashboard
+  action: git repo=https://github.com/ITLinuxCL/Varnish-Agent-Dashboard dest=/usr/local/src/Varnish-Agent-Dashboard
+
+- name: Link to html directory
+  action: file src=/usr/local/src/Varnish-Agent-Dashboard/ dest=/usr/share/varnish-agent/html/dashboard state=link

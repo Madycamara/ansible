@@ -1,0 +1,1 @@
+deb http://repo.zabbix.com/zabbix/{% if ansible_lsb.codename == 'wheezy' %}2.2{% else %}2.0{% endif %}/debian {{ ansible_lsb.codename }} main

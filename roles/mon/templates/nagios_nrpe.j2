@@ -1,0 +1,25 @@
+command[check_users]=/usr/lib/nagios/plugins/check_users -w 5 -c 10
+command[check_load]=/usr/lib/nagios/plugins/check_load -w 15,10,5 -c 30,25,20
+command[check_zombie_procs]=/usr/lib/nagios/plugins/check_procs -w 5 -c 10 -s Z
+command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 150 -c 200
+command[check_swap]=/usr/lib/nagios/plugins/check_swap -a -w 30% -c 10%
+command[check_mem]=/usr/lib/nagios/plugins/check_mem -w 10 -c 5
+command[check_disk]=/usr/lib/nagios/plugins/check_disk -w 5% -c 3% -W ${INODEW} -K ${INODEC}
+command[check_apt]=sudo /usr/lib/nagios/plugins/check_apt -u -c 'NO MES CRITICALS' -t 1000
+command[check_mailq]=/usr/lib/nagios/plugins/check_mailq -M postfix -w 50 -c 60
+command[check_dovecot_master]=/usr/lib/nagios/plugins/check_dovecot.sh -d
+command[check_dovecot_imap]=/usr/lib/nagios/plugins/check_dovecot.sh -i -w 40 -c 60
+command[check_dovecot_pop3]=/usr/lib/nagios/plugins/check_dovecot.sh -p -w 40 -c 60
+command[check_clamav]=/usr/lib/nagios/plugins/check_clamav -w 5 -c 10
+command[check_cpu]=/usr/lib/nagios/plugins/check_cpu -i 3 -w 97 -c 99
+command[check_ntp]=/usr/lib/nagios/plugins/check_ntp -H ntp
+command[check_smarthd]=/usr/lib/nagios/plugins/check_smarthd_null
+command[check_cron]=/usr/lib/nagios/plugins/check_procs -C cron -c 1:1
+command[check_backup-mysql]=/usr/lib/nagios/plugins/check_mybck
+command[check_tmp]=/usr/lib/nagios/plugins/check_tmp.sh -w 1000 -c 10000
+command[check_timezone]=/usr/lib/nagios/plugins/check_timezone.sh
+command[check_dns]=/usr/lib/nagios/plugins/check_dns -H www.google.com -s localhost
+command[check_rbl]=/usr/lib/nagios/plugins/check_rbl --extra-opts=rbl@/etc/nagios/check_rbl.conf -w 1 -c 2 -H `hostname`
+command[check_mx]=sudo /usr/lib/nagios/plugins/check_mx
+command[check_webs]=sudo /usr/lib/nagios/plugins/check_webs
+

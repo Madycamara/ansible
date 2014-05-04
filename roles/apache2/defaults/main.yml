@@ -1,0 +1,12 @@
+# Apache2 default vars
+apache2_confdir: /tmp
+apache2_doc_root: /home/webmaster
+apache2_log_dir: /var/log/apache2
+apache2_vhosts:
+  - { servername: www.linux.cat, serveralias: [ 'linux.cat', 'test.linux.cat' ], enabled: true , uid: 1000, gid: 1000}
+  - { servername: www.linux.com, nvh: local, documentroot: "/test/docroot", uid: 1000, ssl: False }
+  - { servername: www.linux.es, enabled: false, username: root, groupname: root, ssl: True}
+
+apache2_namevirtualhost:
+  local: { name: "localhost", port: 80 }
+  public: { name: "192.168.50.50", port: 8080 }

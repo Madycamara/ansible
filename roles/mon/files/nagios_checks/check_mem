@@ -1,0 +1,46 @@
+#!/bin/bash
+PROGNAME=`/usr/bin/basename $0`
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+. $PROGPATH/utils.sh
+
+critical=""
+warning=""
+
+function usage(){
+	echo -e "\n $*"
+	echo -e "\n Usage: $PROGNAME [-w|--warning]<percent free> [-c|--critical]<percent free>\n"
+	exit 0
+}
+
+[[ $# -lt 4 ]] && usage "Wrong Syntax: $PROGNAME $*"
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-w|--warning)
+			shift
+			warning=$1
+		;;
+		-c|--critical)
+			shift
+			critical=$1
+		;;
+	esac
+	shift
+done
+[[ $warning -eq $critical || $warning -lt $critical ]] && usage "WARNING threshold must be greater than CRITICAL: $PROGNAME $*"
+total=`free -m | head -2 |tail -1 |awk '{print $2}'`
+used=`free -m | head -3 |tail -1 |awk '{print $3}'`
+free=$(expr $total - $used)
+percent=$(echo "scale=2;(${free} / ${total} ) * 100 "|bc|cut -d'.' -f1)
+if [ "$percent" -le  $critical ] ; then
+	echo "CRITICAL - $free MB ($percent%) Free Memory"
+	exit $STATE_CRITICAL
+elif [ "$percent" -le  $warning ] ; then
+	echo "WARNING - $free MB ($percent%) Free Memory"
+	exit $STATE_WARNING
+elif [ "$percent" -gt  $warning ]; then
+	echo "OK - $free MB ($percent%) Free Memory"
+	exit $STATE_OK
+else
+	echo "Unknown - $free Free / $used Used / $total Total"
+	exit $STATE_UNKNOWN
+fi

@@ -1,0 +1,25 @@
+- name: Configure postfix (/etc/postfix/main.cf)
+  action: template src=postfix/main.j2 dest=/etc/postfix/main.cf
+
+- name: Configure postfix (/etc/postfix/master.cf)
+  action: template src=postfix/master.j2 dest=/etc/postfix/master.cf
+
+- name: Configure postfix (several files are being deployed)
+  action: template src={{ item.src }} dest={{ item.dest }} owner=postfix group=postfix mode=0600
+  with_items:
+    - { src: 'postfix/mysql_virtual_alias_maps.j2', dest: '/etc/postfix/mysql_virtual_alias_maps.cf' }
+    - { src: 'postfix/mysql_virtual_domains_maps.j2', dest: '/etc/postfix/mysql_virtual_domains_maps.cf' }
+    - { src: 'postfix/mysql_virtual_mailbox_limit_maps.j2', dest: '/etc/postfix/mysql_virtual_mailbox_limit_maps.cf' }
+    - { src: 'postfix/mysql_virtual_mailbox_maps.j2', dest: '/etc/postfix/mysql_virtual_mailbox_maps.cf' }
+    - { src: 'postfix/mysql_virtual_relay_domains_maps.j2', dest: '/etc/postfix/mysql_virtual_relay_domains_maps.cf' }
+    - { src: 'postfix/mysql_virtual_transport_maps.j2', dest: '/etc/postfix/mysql_virtual_transport_maps.cf' }
+  notify:
+    - restart postfix
+
+- name: Configure postfix rcpt_checks (/etc/postfix/rcpt_checks.inrcpt_check.in)
+  action: template src=postfix/rcpt_checks.in.j2 dest=/etc/postfix/rcpt_checks.in owner=root group=root mode=0640
+  notify:
+      - postmap rcpt_checks
+
+- name: Check postfix running
+  service: name=postfix state=started enabled=true

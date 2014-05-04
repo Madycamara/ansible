@@ -1,0 +1,3 @@
+- include: install.yml tags=varnish,apt
+- include: configure.yml tags=varnish
+- include: dashboard.yml tags=varnish,dashboard

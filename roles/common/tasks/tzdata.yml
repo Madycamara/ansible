@@ -1,0 +1,7 @@
+- name: Pressed tzdata answers
+  action: debconf_tzdata
+
+- name: Reinstall tzdata
+  apt: name=tzdata state=present dpkg_options='install,reinstall'
+  tags:
+    - apt

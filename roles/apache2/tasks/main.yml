@@ -1,0 +1,3 @@
+- include: install.yml tags=apt,apache2
+- include: configure.yml tags=apache2
+- include: vhosts.yml tags=apache2,vhosts

@@ -1,0 +1,5 @@
+<?php
+$DB_DSN="{{ cb_dbtype | default("mysql") }}:host={{ cb_dbhost | default("localhost") }};dbname={{ cbpolicyd_db | default("cbpolicyd") }}";
+$DB_USER="{{ cbpolicyd_dbuser | default("cbpolicyd") }}";
+$DB_PASS="{{ cbpolicyd_dbpass }}";
+?>

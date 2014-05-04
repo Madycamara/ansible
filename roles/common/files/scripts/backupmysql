@@ -1,0 +1,83 @@
+#!/bin/bash
+
+. /usr/local/acs-sbin/load-acs.sh
+MYSQLHOST=localhost
+MAIL="sistemes@suport.acs.com"
+. /etc/acs/backup
+
+function enviaMail { #
+	echo "Host `hostname`: ${1}" | mail -s "`hostname`: ${1}" ${MAIL}
+} #
+
+if [ "$BACKUPMYSQL" != "yes" ]; then
+        print_term "Backupmysql no està activat"
+        exit 0
+elif [ ! -x "/usr/sbin/mysqld" ]; then
+        print_term "El servei mysqld no esta instalat"
+        exit 0
+fi
+
+if [ ! -d "${BACKUPDIR}mysql" ]; then
+	enviaMail "Sense directori de backups '${BACKUPDIR}mysql'."
+	Die "Sense directori de backups '${BACKUPDIR}mysql'."
+fi
+
+MySQL="/usr/bin/mysql"
+MySQLdump="/usr/bin/mysqldump"
+MySQLshow="/usr/bin/mysqlshow"
+MySQLadmin="/usr/bin/mysqladmin"
+
+for CMD in $MySQL $MySQLdump $MySQLshow $MySQLadmin ; do
+	#[ -x $CMD ] || enviaMail "Binari $CMD no trobat."; Die "Binari $CMD no trobat."
+	if [ ! -x $CMD ]; then
+		enviaMail "Binari '$CMD' no trobat."
+		Die "Binari '$CMD' no trobat."
+	fi
+done
+
+MySQL="$MySQL -h $MYSQLHOST"
+MySQLdump="$MySQLdump --opt -f -h $MYSQLHOST"
+MySQLshow="$MySQLshow -h $MYSQLHOST"
+MySQLadmin="$MySQLadmin -h $MYSQLHOST"
+
+if [ "X$MYSQLUSER" != "X" ] ; then
+	MySQL="$MySQL -u $MYSQLUSER"
+	MySQLdump="$MySQLdump -u $MYSQLUSER"
+	MySQLshow="$MySQLshow -u $MYSQLUSER"
+	MySQLadmin="$MySQLadmin -u $MYSQLUSER"
+fi
+if [ "X$MYSQLPASSWD" != "X" ] ; then
+	MySQL="$MySQL -p$MYSQLPASSWD"
+	MySQLdump="$MySQLdump -p$MYSQLPASSWD"
+	MySQLshow="$MySQLshow -p$MYSQLPASSWD"
+	MySQLadmin="$MySQLadmin -p$MYSQLPASSWD"
+fi
+
+LABEL="`/bin/date +%Y-%m-%d_%H-%M`"
+
+if [ -z "$1" ]; then
+	#DATABASES=` $MySQLshow | grep -v Databases | cut -f 2 -d \ | grep -v -e + -e information_schema `
+	DATABASES=` $MySQLshow | grep -v Databases | cut -f 2 -d \ | grep -v -e + -e _schema `
+else
+	DATABASES=$1
+fi
+
+$MySQLadmin flush-hosts flush-status flush-tables flush-threads flush-privileges
+
+for DATABASE in $DATABASES; do
+	if [ $(echo $MYSQLEXCLUDEDDBB|grep -c $DATABASE) -eq 0 ]; then
+		TABLES=$( $MySQL $DATABASE -e "SHOW TABLES"|wc -l)
+		if [ $TABLES -gt 0 ]; then
+			$MySQLdump $DATABASE| gzip > $BACKUPDIR/mysql/$DATABASE-$LABEL.gz
+			#$MySQLdump $DATABASE > $BACKUPDIR/mysql/$DATABASE-$LABEL
+			#if [ "$?" -ne "0" ]; then
+			if  [ ${PIPESTATUS[0]} -ne "0" ]; then
+				enviaMail "Error fent dump de la BD '$DATABASE', cal revisar."
+			fi
+			#gzip $BACKUPDIR/mysql/$DATABASE-$LABEL
+		fi
+		find $BACKUPDIR/mysql/ -name "$DATABASE-*" -ctime +3 -exec rm -f {} \;
+	fi
+done
+
+exit 0

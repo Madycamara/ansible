@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -e
+source /tmp/libs.sh
+
+#exit_changed() { 
+#       echo "changed=True msg=OK"
+#       exit 0
+#}
+#
+#exit_unchanged() { 
+#       echo "changed=False msg=OK"
+#       exit 0
+#}
+
+. $1
+
+logger -t pfa_presed "$mysql_pass $pfa_pass"
+cat <<EOF | debconf-set-selections 
+postfixadmin    postfixadmin/mysql/admin-pass   password	$mysql_pass
+postfixadmin    postfixadmin/app-password-confirm       password
+postfixadmin    postfixadmin/mysql/app-pass     password	$pfa_pass
+postfixadmin    postfixadmin/password-confirm   password
+postfixadmin    postfixadmin/remote/newhost     string  localhost
+postfixadmin    postfixadmin/db/app-user        string  postfixadmin
+postfixadmin    postfixadmin/purge      boolean false
+postfixadmin    postfixadmin/install-error      select  retry
+postfixadmin    postfixadmin/dbconfig-reinstall boolean true
+postfixadmin    postfixadmin/reconfigure-webserver      multiselect     apache2
+postfixadmin    postfixadmin/internal/skip-preseed      boolean false
+postfixadmin    postfixadmin/remote/port        string  3306
+postfixadmin    postfixadmin/dbconfig-install   boolean true
+postfixadmin    postfixadmin/database-type      select  mysql
+postfixadmin    postfixadmin/internal/reconfiguring     boolean false
+postfixadmin    postfixadmin/dbconfig-upgrade   boolean true
+postfixadmin    postfixadmin/remote/host        select  localhost
+postfixadmin    postfixadmin/upgrade-error      select  abort
+postfixadmin    postfixadmin/mysql/method       select  tcp/ip
+postfixadmin    postfixadmin/missing-db-package-error   select  abort
+postfixadmin    postfixadmin/upgrade-backup     boolean true
+postfixadmin    postfixadmin/mysql/admin-user   string  root
+postfixadmin    postfixadmin/dbconfig-remove    boolean
+postfixadmin    postfixadmin/remove-error       select  abort
+postfixadmin    postfixadmin/db/basepath        string
+postfixadmin    postfixadmin/db/dbname  string  postfixadmin
+EOF
+
+if [ "$?" == "0" ]; then
+  exit_unchanged
+  exit 0
+fi
+
+exit_unchanged
