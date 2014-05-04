@@ -10,10 +10,11 @@ iface {{ interface.name }} inet static
 	address {{ interface.ipv4 }}
 	netmask {{ interface.netmask }}
 {% if interface.gw is defined %}	gateway {{ interface.gw }}{% endif %}
-
-{% if interface.rules is defined and interface.rules|length > 0 %}
-{% for rule in interface.rules %}
-	{{ rule }}
+{% if interfaces_rules is defined and interfaces_rules|length > 0 %}
+{% for rule in interfaces_rules %}
+{% if rule.name == interface.name %}
+	{{ rule.rule }}
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endfor %}

@@ -1,3 +1,5 @@
+{% if sshkeys is defined %}
 {% for key in sshkeys %}
 {{ key.key }}
 {% endfor %}
+{% endif %}
