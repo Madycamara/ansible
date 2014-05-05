@@ -1,7 +1,2 @@
-#- name: Configure sudo includedir
-#  lineinfile: dest=/etc/sudoers state=present validate='visudo -cf %s'
-#              line='^#includedir /etc/sudoers.d'
-
-- name: Configure sudo
-  action: template src=sudoers.j2 dest=/etc/sudoers.d/{{ sudoers_filename }} 
-#validate='visudo -cf %s'
+- name: Configure sudo global
+  action: template src=sudoers.j2 dest=/etc/sudoers.d/ansible_global validate='visudo -cf %s'

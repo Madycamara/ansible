@@ -1,10 +1,10 @@
-{% if sudoers_cmd_alias is defined %}
-{% for name, bin in sudoers_cmd_alias.iteritems() %}
-Cmnd_Alias	{{ name }}={{ bin }}
-{% endfor %}
+{% set sudo = {} %}
+{% if sudoers_global is defined %}
+{% set sudo = sudoers_global|list %}
 {% endif %}
-{% if sudoers_perms is defined %}
-{% for user, perm in sudoers_perms.iteritems() %}
-{{ user }}	{{ perm }}
-{% endfor %}
+{% if sudoers is defined %}
+{% set sudo = sudo|list + sudoers|list %}
 {% endif %}
+{% for rule in sudo %}
+{{ rule.user }}	{{ rule.rule }}
+{% endfor %}
