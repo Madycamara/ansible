@@ -16,9 +16,7 @@
     - /etc/zabbix/zabbix_agentd.d/
 
 - name: Configure zabbix userparameters
-  action: template src=userparameters/{{ item }}.conf dest=/etc/zabbix/zabbix_agentd.d/{{ item }}.conf owner=zabbix
-  with_items:
-    - varnish
+  action: template src=userparameters.j2 dest=/etc/zabbix/zabbix_agentd.d/userpameters.conf owner=zabbix
 
 - name: Verify zabbix agent service
   action: service name=zabbix-agent state=started

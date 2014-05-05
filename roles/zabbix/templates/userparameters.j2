@@ -1,0 +1,10 @@
+{% if zabbix_userparameters_global is defined %}
+{% for param in zabbix_userparameters_global %}
+UserParameter={{ param.key}},{{ param.action }}
+{% endfor %}
+{% endif %}
+{% if zabbix_userparameters is defined %}
+{% for param in zabbix_userparameters %}
+UserParameter={{ param.key}},{{ param.action }}
+{% endfor %}
+{% endif %}
