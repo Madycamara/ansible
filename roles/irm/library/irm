@@ -1,71 +1,73 @@
 #!/bin/sh
-set -e
-. /tmp/libs.sh
 . $1
 
+MYSQL="mysql -h$irm_db_host -P $irm_db_port -u$irm_db_user -p$irm_db_password $irm_db_name -Bse "
+RESULT=$($MYSQL "SELECT 1" 2>&1)
+if [ $? -ne 0 ]; then
+	echo "failed=True msg='MySQL Error: $RESULT'"
+	exit 0
+fi
+change_flag=0
+
 check_value(){
-        # Sintaxi: check_value <valor> <camp>
-	#		       $1	$2
+        # Syntax: check_value <value> <field>
 	SELECT_VALUE="SELECT ${2} FROM computers WHERE ${2} LIKE '%${1}%' AND ID = '${ID_HOST}'"
 	SELECT_VALUE=$(${MYSQL} "${SELECT_VALUE}")
 	if [ "$SELECT_VALUE" != "${1}" ]; then
-		# Si el valor no es el mateix (sino semblant), l'actualitzem
-		UPDATE_VALUE="UPDATE computers SET ${2} = '${1}' WHERE ID = '${ID_HOST}'"
+		UPDATE_VALUE="UPDATE computers SET ${2} = '${1}', date_mod=NOW() WHERE ID = '${ID_HOST}'"
 		${MYSQL} "${UPDATE_VALUE}"
 		change_flag=1
 	fi
 }
 
 check_dropdown(){
+        # Syntax: check_dropdown <lookup> <value>
 	SELECT_DROPDOWN="SELECT value FROM lookup_data WHERE lookup = '${1}' AND value LIKE '%${2}%'"
 	SELECT_DROPDOWN=$(${MYSQL} "${SELECT_DROPDOWN}")
 	if [ -z "$SELECT_DROPDOWN" ]; then
+		INSERT_DROPDOWN="INSERT INTO lookup_data VALUES ('${1}','${2}')"
+		${MYSQL} "${INSERT_DROPDOWN}"
 		echo "${2}"
 	else
 		echo "${SELECT_DROPDOWN}"
 	fi
 }
 
-change_flag=0
-disk=$(echo "$disk/1024/1024/1024"|bc)
+exit_error(){
+	echo "failed=True msg=${1}"
+	exit 0
+}
 
-MYSQL="mysql -h$irm_db_host -P $irm_db_port -u$irm_db_user -p$irm_db_password irm -Bse "
 SELECT_HOSTNAME="SELECT ID FROM computers WHERE name='${hostname}'"
-
-
 ID_HOST=$(${MYSQL} "${SELECT_HOSTNAME}")
 if [ -z "$ID_HOST" ]; then
-	# Host absent al irm, inserint...
 	SELECT_ID="SELECT sequence FROM computers__ID"
 	ID_HOST=$(${MYSQL} "${SELECT_ID}")
 	ID_HOST=$(expr $ID_HOST + 1)
 	INSERT_HOSTNAME="INSERT INTO computers (ID,name) VALUES ($ID_HOST,'${hostname}')"
 	${MYSQL} "${INSERT_HOSTNAME}"
    	if [ $? -ne 0 ]; then
-		echo "failed=True msg=OK"
-		exit 0
+		exit_error "Inserting host error"
 	else
-		# ... i actualitzem ID
 		UPDATE_ID="UPDATE computers__ID SET sequence=$ID_HOST"
 	        ${MYSQL} "${UPDATE_ID}"
 		if [ $? -ne 0 ]; then
-			echo "failed=True msg=OK"
-	                exit 0
+			exit_error "Updating computers__ID error"
 		else
 			change_flag=1
 		fi
 	fi
 fi
 
-# Host present al irm, comprovem si les dades son al dia
-# Sintaxi: check_value <valor> <camp>
 if [ "$virt_type" == "server_type" ]; then 
 	type=$server_type
 else
 	type=$virt_type
 fi
-type=$(check_dropdown type "${type}")
-check_value "${type}" type
+if [ "${type}" != "" -a "${type}" != "server_type" ]; then
+	type=$(check_dropdown type "${type}")
+	check_value "${type}" type
+fi
 
 distribution=$(check_dropdown os "${distribution}")
 check_value "${distribution}" os
@@ -80,16 +82,17 @@ if [ "$serial" != "NA" ]; then
 fi
 
 check_value "${ram}" ram
+check_value "${mac}" mac
 check_value "${ip}" ip
-check_value "${disk}" hdspace
-#check_value "${kernel}" kernel
-check_value "${customer_contact}" contact # Variable {{ customer_contact }} de host_vars
+check_value "${cpu_cores}" processor_speed
+check_value "${location}" location
 
-#manager=$(check_dropdown manager "${customer_manager}")
-#check_value "${manager}" manager # Variable {{ customer_manager }} de host_vars
+disk=$(echo "$disk/1024/1024/1024"|bc)
+check_value "${disk}" hdspace
+check_value "${customer_contact}" contact
 
 if [ "$change_flag" -eq "0" ]; then
-	exit_unchanged
+	echo "changed=False msg=OK"
 else
-	exit_changed
+	echo "changed=True msg=OK"
 fi

@@ -1,5 +1,4 @@
 - include: general.yml tags=common
-- include: irm.yml tags=common,irm
 - include: tzdata.yml tags=common,tzdata
 - include: vim.yml tags=common,vim
 - include: postfix.yml tags=common,postfix
