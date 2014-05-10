@@ -4,6 +4,11 @@
     - firewall
     - apt
 
+- name: Verify conf dir exists
+  action: file dest=/etc/acs state=directory
+  tags:
+    - firewall
+
 - name: Copy base file
   action: template src=iptables.j2 dest=/etc/acs/iptables.rules
   notify:
