@@ -1,8 +1,0 @@
-Hostname={{ ansible_hostname }}
-Server={{ zabbix_servers }}
-ServerActive={{ zabbix_servers }}
-PidFile=/var/run/zabbix/zabbix_agentd.pid
-LogFile=/var/log/zabbix/zabbix_agentd.log
-StartAgents=5
-Timeout=3
-DebugLevel={{ zabbix_debuglevel | default('3') }}
