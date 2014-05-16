@@ -1,6 +1,7 @@
 - name: Enroll host in IRM
   tags:
     - irm
+  when: ansible_run_playbook == 'true' and roles['irm'] is defined or roles_group['irm'] is defined
   local_action: irm 
                 kernel="{{ hostvars[inventory_hostname]['ansible_kernel'] }}" 
                 ip="{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" 

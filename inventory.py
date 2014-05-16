@@ -27,15 +27,34 @@ def grouplist(conn):
 
     for group in inventory:
          result=retvars(conn,'group',group)
-	 if len(result) > 0:
-           inventory[group]['vars']=result
+         inventory[group]['vars']=result
+         roles=retroles(conn,'group',group)
+         if len(roles) > 0:
+           inventory[group]['vars']['roles_group']=roles
 
     cur.close()
     print json.dumps(inventory, indent=4)
 
 def hostinfo(conn, name):
-    result=retvars(conn,'host',name)
-    print json.dumps(result, indent=4)
+  result=retvars(conn,'host',name)
+  roles=retroles(conn,'host',name)
+  result['roles']=roles
+  print json.dumps(result, indent=4)
+
+def retroles(conn, type, name):
+  result = {}
+  cur = conn.cursor()
+  if type == 'host':
+    cur.execute("SELECT role.name AS role FROM host_roles INNER JOIN role ON role.id=host_roles.role_id INNER JOIN host ON host.id=host_roles.host_id WHERE host.name=%s", name)
+  elif type == 'group':
+    cur.execute("SELECT role.name AS role FROM group_roles INNER JOIN role ON role.id=group_roles.role_id INNER JOIN `group` ON group.id=group_roles.group_id WHERE group.name=%s", name)
+
+  rows=cur.fetchall()
+  for row in rows:
+    result[row[0]]='true'
+    #result.append(row[0])
+
+  return result
 
 def retvars(conn, type, name):
   result = {}

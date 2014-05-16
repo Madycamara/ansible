@@ -1,7 +1,9 @@
 - hosts: all
-  roles:
-    - common
-    - zabbix
-    - sudo
+  roles: 
     - irm
-    - iptables
+ 
+
+#  tasks:
+#  - name: Mark run playbook false
+#    action: libraryblablalba
+#    when: ansible_run_playbook == true
