@@ -1,26 +1,24 @@
 #!/bin/sh
-DB=$1
-TABLE=$2
-DATA=$3
-SQL="SELECT SUM("
+if [ -z "$1" ]; then DB="all"; else DB=$1; fi
+if [ -z "$2" ]; then TABLE="all"; else TABLE=$2; fi
+if [ -z "$3" ]; then DATA="both"; else DATA=$3; fi
 case "$DATA" in
 	"both"|"")
-		SQL=$SQL"data_length+index_length"
+		SUM="data_length+index_length"
 		;;
 	"data|index")
-		SQL="${SQL}${DATA}_length"
+		SUM="${DATA}_length"
 		;;
 	"free")
-		SQL=$SQL"data_free"
+		SUM="data_free"
 		;;
 esac
-SQL=$SQL") FROM information_schema.tables"
 if [ "$DB" != "all" -a -n "$DB" ]; then
-	SQL=$SQL" WHERE table_schema='$DB'"
+	WHERE=" WHERE table_schema='$DB'"
 	if [ "$TABLE" != "all" -a -n "$TABLE" ]; then
-		SQL=$SQL" AND table_name='$TABLE'"
+		ANDTABLE=" AND table_name='$TABLE'"
 	fi
 fi
 
+SQL="SELECT SUM($SUM) FROM information_schema.tables $WHERE $ANDTABLE"
 HOME=/var/lib/zabbix mysql -NBse "$SQL"
-

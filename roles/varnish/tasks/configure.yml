@@ -1,30 +1,128 @@
-- name: Configure varnish
-  action: template src=varnish.j2 dest=/etc/varnish/default.vcl
-#  action: template src={{ item }} dest=/etc/varnish/default.vcl
-#  with_first_found:
-#    - varnish.j2
-#    - "{{ inventory_hostname }}/varnish.j2"
+- name: testing vars
+  action: debug msg="{{ config_host_path }}/{{ inventory_hostname }}/varnish/varnish.j2"
+
+- name: Configure varnish default.vcl
+  action: template src={{ item }} dest=/etc/varnish/default.vcl
+  with_first_found:
+    - files:
+        - varnish.j2
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
   notify: restart varnish
 
-#- name: Verify custom dir exist
-#  action: file dest=/etc/varnish/custom state=directory
-#
-#- name: Verify custom files exists
-#  action: file dest=/etc/varnish/custom/{{ item }}.vcl state=file
-#  with_items:
-#    - recv 
-#    - pipe 
-#    - pass 
-#    - hash 
-#    - hit 
-#    - miss 
-#    - fetch 
-#    - deliver 
-#    - error 
-#    - init
-#    - fini
-#  notify: restart varnish
+- name: Verify custom dir exist
+  action: file dest=/etc/varnish/custom state=directory
 
+- name: Configure varnish recv.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/recv.vcl
+  with_first_found:
+    - files:
+        - recv.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish pipe.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/pipe.vcl
+  with_first_found:
+    - files:
+        - pipe.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish pass.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/pass.vcl
+  with_first_found:
+    - files:
+        - pass.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish hash.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/hash.vcl
+  with_first_found:
+    - files:
+        - hash.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish hit.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/hit.vcl
+  with_first_found:
+    - files:
+        - hit.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish miss.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/miss.vcl
+  with_first_found:
+    - files:
+        - miss.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish fetch.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/fetch.vcl
+  with_first_found:
+    - files:
+        - fetch.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish deliver.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/deliver.vcl
+  with_first_found:
+    - files:
+        - deliver.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish error.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/error.vcl
+  with_first_found:
+    - files:
+        - error.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish init.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/init.vcl
+  with_first_found:
+    - files:
+        - init.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
+
+- name: Configure varnish fini.vcl file
+  action: copy src={{ item }} dest=/etc/varnish/custom/fini.vcl
+  with_first_found:
+    - files:
+        - fini.vcl
+      paths:
+        - "{{ config_host_path }}/{{ inventory_hostname }}/varnish/"
+        - ../templates/
+  notify: restart varnish
 
 - name: Verify varnish state
   action: service name=varnish state=started

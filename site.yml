@@ -1,7 +1,10 @@
 - hosts: all
   roles: 
-    - irm
+    - zabbix
  
+- hosts: cache.acs.li
+  roles:
+    - varnish
 
 #  tasks:
 #  - name: Mark run playbook false

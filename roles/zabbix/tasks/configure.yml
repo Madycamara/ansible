@@ -26,6 +26,7 @@
 
 - name: Copy script files
   action: copy src=scripts/ dest=/etc/zabbix/scripts/ owner=zabbix
+  tags: scripts
 
 - name: Configure zabbix userparameters
   action: template src=userparameters.j2 dest=/etc/zabbix/zabbix_agentd.d/userpameters.conf owner=zabbix
