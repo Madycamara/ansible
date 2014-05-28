@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ ! -e /proc/diskstats ]; then
+	exit 0
+fi
+
+echo '{"data":'
+echo "\t["
+for d in $(cat /proc/diskstats |grep -vE "(loop|fd|sr|ram)"|awk '{print $3}'); do
+	echo "\t\t{ \"{#DISK}\" : \"$d\"},"
+done
+echo "\t]"
+echo '}'
+
