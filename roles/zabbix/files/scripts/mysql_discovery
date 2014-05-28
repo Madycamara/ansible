@@ -1,8 +1,15 @@
 #!/bin/sh
+FIRST=1
 echo '{"data":'
 echo "\t["
 for b in $(HOME=/var/lib/zabbix mysql -Bse "SELECT DISTINCT(db) FROM mysql.db"); do
-	echo "\t\t{ \"{#BBDD}\" : \"$b\"},"
+        if [ $FIRST -ne 1 ]; then
+                echo -n ",\n"
+        else
+                FIRST=0
+                echo  ""
+        fi
+        echo -n "\t\t{ \"{#BBDD}\" : \"$b\"}"
 done
-echo "\t]"
+echo "\n\t]"
 echo '}'
