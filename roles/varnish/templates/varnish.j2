@@ -29,35 +29,35 @@ acl purgehosts {
 
 sub vcl_recv {
 	set req.http.X-Full-Uri = req.http.host + req.url;
-	#include "custom/recv.vcl";
+	include "custom/recv.vcl";
 }
 sub vcl_pipe {
-	#include "custom/pipe.vcl";
+	include "custom/pipe.vcl";
 }
 sub vcl_pass {
-	#include "custom/pass.vcl";
+	include "custom/pass.vcl";
 }
 sub vcl_hash {
-	#include "custom/hash.vcl";
+	include "custom/hash.vcl";
 }
 sub vcl_hit {
-	#include "custom/hit.vcl";
+	include "custom/hit.vcl";
 }
 sub vcl_miss {
-	#include "custom/miss.vcl";
+	include "custom/miss.vcl";
 }
 sub vcl_fetch {
-	#include "custom/fetch.vcl";
+	include "custom/fetch.vcl";
 }
 sub vcl_deliver {
-	#include "custom/deliver.vcl";
+	include "custom/deliver.vcl";
 }
 sub vcl_error {
-	#include "custom/error.vcl";
+	include "custom/error.vcl";
 }
 sub vcl_init {
-	#include "custom/init.vcl";
+	include "custom/init.vcl";
 }
 sub vcl_fini {
-	#include "custom/fini.vcl";
+	include "custom/fini.vcl";
 }
