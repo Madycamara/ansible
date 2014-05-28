@@ -3,12 +3,19 @@
 if [ ! -e /proc/diskstats ]; then
 	exit 0
 fi
+FIRST=1
 
 echo '{"data":'
 echo "\t["
-for d in $(cat /proc/diskstats |grep -vE "(loop|fd|sr|ram)"|awk '{print $3}'); do
-	echo "\t\t{ \"{#DISK}\" : \"$d\"},"
+for d in $(cat /proc/diskstats |awk '{print $3}'); do
+	if [ $FIRST -ne 1 ]; then
+		echo -n ",\n"
+	else
+		echo ""
+		FIRST=0
+	fi
+	echo -n "\t\t{ \"{#DISK}\" : \"$d\"}"
 done
-echo "\t]"
+echo "\n\t]"
 echo '}'
 
