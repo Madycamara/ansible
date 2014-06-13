@@ -26,7 +26,7 @@
 
 - name: Apt upgrade (set '-e sys_upgrade="yes"' to not skip)
   action: apt upgrade=yes
-  when: sys_upgrade == "yes"
+  when: sys_upgrade is defined and sys_upgrade == "yes"
   tags: 
     - apt-upgrade
 

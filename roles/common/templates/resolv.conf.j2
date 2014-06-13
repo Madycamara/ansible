@@ -1,9 +1,9 @@
 {% if search_domains is defined %}
-search{%for dom in search_domains %} {{ dom }}{% endfor %}
+search{%for dom in search_domains.split() %} {{ dom }}{% endfor %}
 
 {% endif %}
 {% if resolvers is defined %}
-{% for resolver in resolvers %}
+{% for resolver in resolvers.split() %}
 nameserver {{ resolver }}
 {% endfor %}
 {% endif %}

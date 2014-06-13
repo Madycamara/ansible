@@ -1,5 +1,6 @@
 - hosts: all
   roles: 
+    - common
     - zabbix
  
 - hosts: cache.acs.li

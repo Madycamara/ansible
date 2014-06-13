@@ -16,10 +16,11 @@
     - /etc/zabbix/zabbix_agentd.d
     - /etc/zabbix/scripts
 
-- name: Delete old dirs
+- name: Delete old dirs/files
   action: file dest={{ item }} state=absent
   with_items:
     - /etc/zabbix/zabbix_agentd.conf.d
+    - /etc/zabbix/zabbix_agentd.d/userparameter_mysql.conf
     - /etc/zabbix/zabbix_agent.conf
     - /var/log/zabbix-agent
     - /var/run/zabbix-agent
