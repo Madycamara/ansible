@@ -7,6 +7,10 @@
   roles:
     - varnish
 
+- hosts: vpn.acs.li
+  roles:
+    - tinc
+
 #  tasks:
 #  - name: Mark run playbook false
 #    action: libraryblablalba

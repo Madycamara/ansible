@@ -1,0 +1,3 @@
+#!/bin/sh
+ifconfig $INTERFACE {{ tinc_host.vpnip }} netmask {{ tinc_host.vpnipmask }}
+ifconfig $INTERFACE up

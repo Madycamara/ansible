@@ -1,0 +1,2 @@
+- name: Install tinc
+  apt: package=tinc state=present

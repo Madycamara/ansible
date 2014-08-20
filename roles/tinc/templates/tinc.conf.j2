@@ -1,0 +1,8 @@
+Name = {{ inventory_hostname }}
+{% if tinc_host.conectto is defined %}
+{% for con in tinc_host.conectto %}
+ConnectTo = {{ ConnectoTo}}
+{% endfor %}
+{% endif %}
+
+Mode = {{ tinc_host.mode | default('switch') }}

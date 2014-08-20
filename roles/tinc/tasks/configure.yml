@@ -1,0 +1,39 @@
+- name: create tinc user
+  action: user name=tinc system=yes createhome=no state=present
+
+#- name: test
+#  debug: msg="{{ item }}"
+#  with_items:
+#    - "{{ groups['ACS'] }}"
+#  tags: test
+
+- name: Verify local dir conf exists
+  local_action: file path=tinc-conf state=directory 
+
+- name: Verify key exists
+  local_action: stat path=tinc-conf/{{ inventory_hostname }}.rsa_key
+  register: key
+
+- name: Create key
+  local_action: command {{ item }} 
+  with_items:
+    - openssl genrsa  -out tinc-conf/{{ inventory_hostname }}.rsa_key 2048
+    - openssl rsa -pubout -out tinc-conf/{{ inventory_hostname }}.rsa_key.pub -in tinc-conf/{{ inventory_hostname }}.rsa_key
+  when: key.stat.exists == False
+
+- name: Create tinc dirs
+  action: file dest=/etc/tinc/{{ item.name }}/hosts mode=755 owner=tinc group=tinc
+  with_items: "{{ tinc_net }}"
+
+- name: Create tinc.conf
+  action: template src=tinc.conf.j2 dest=/etc/tinc/{{ item.name }}/tinc.conf
+  with_items: "{{ tinc_net }}"
+
+- name: Create tinc-up
+  action: template src=tinc-up.j2 dest=/etc/tinc/{{ item.name }}/tinc-up mode=0755
+  with_items: "{{ tinc_net }}"
+
+- name: Create hosts files
+  action: template src=host.j2 dest=/etc/tinc/{{ tinc_net.name}/hosts/{{ item }}
+  with_items:
+    - "{{ groups[tinc_net['groupname]] }}"

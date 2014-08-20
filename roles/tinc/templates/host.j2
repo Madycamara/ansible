@@ -1,0 +1,3 @@
+Address =  {{ tinc_host.address | default('caca') }} 
+
+{{ lookup("file", "tinc-conf/" + inventory_hostname + ".rsa_key.pub") }}
