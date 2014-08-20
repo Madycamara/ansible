@@ -1,8 +1,9 @@
-Name = {{ inventory_hostname }}
-{% if tinc_host.conectto is defined %}
-{% for con in tinc_host.conectto %}
-ConnectTo = {{ ConnectoTo}}
+Name = {{ inventory_hostname | regex_replace('\.','') }}
+{% for host in tinc_host %}
+{% if host.connectto is defined %}
+{% for con in host.connectto.split() %}
+ConnectTo = {{ host.connectto | regex_replace('\.','') }}
 {% endfor %}
 {% endif %}
-
+{% endfor %}
 Mode = {{ tinc_host.mode | default('switch') }}

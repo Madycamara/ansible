@@ -1,3 +1,7 @@
 #!/bin/sh
-ifconfig $INTERFACE {{ tinc_host.vpnip }} netmask {{ tinc_host.vpnipmask }}
+{% for host in tinc_host %}
+{% if host.net_name == item.name %}
+ifconfig $INTERFACE {{ host.vpnip }} netmask {{ host.vpnipmask }}
+{% endif %}
+{% endfor %}
 ifconfig $INTERFACE up

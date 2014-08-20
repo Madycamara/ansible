@@ -7,7 +7,9 @@
   roles:
     - varnish
 
-- hosts: vpn.acs.li
+- hosts: 
+    - vpn.acs.li
+    - casa.dyn.acs.li
   roles:
     - tinc
 

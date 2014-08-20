@@ -1,39 +1,54 @@
 - name: create tinc user
   action: user name=tinc system=yes createhome=no state=present
 
-#- name: test
-#  debug: msg="{{ item }}"
-#  with_items:
-#    - "{{ groups['ACS'] }}"
-#  tags: test
-
 - name: Verify local dir conf exists
-  local_action: file path=tinc-conf state=directory 
+  local_action: file path=/etc/ansible/tinc-conf state=directory 
 
 - name: Verify key exists
-  local_action: stat path=tinc-conf/{{ inventory_hostname }}.rsa_key
+  local_action: stat path=/etc/ansible/tinc-conf/{{ item[1] }}.rsa_key
+  with_nested:
+    - tinc_net
+    - groups[item[0].groupname]
   register: key
+  tags: tinc-keys
 
-- name: Create key
-  local_action: command {{ item }} 
-  with_items:
-    - openssl genrsa  -out tinc-conf/{{ inventory_hostname }}.rsa_key 2048
-    - openssl rsa -pubout -out tinc-conf/{{ inventory_hostname }}.rsa_key.pub -in tinc-conf/{{ inventory_hostname }}.rsa_key
-  when: key.stat.exists == False
+- name: Create private key
+  local_action: command openssl genrsa  -out /etc/ansible/tinc-conf/{{ item.0.item.1 }}.rsa_key 2048
+  with_nested:
+    - key.results
+  when: item.0.stat.exists == False
+  tags: tinc-keys
+
+- name: Create public key
+  local_action: command openssl rsa -pubout -out /etc/ansible/tinc-conf/{{ item.0.item.1 }}.rsa_key.pub -in /etc/ansible/tinc-conf/{{ item.0.item.1 }}.rsa_key
+  with_nested:
+    - key.results
+  when: item.0.stat.exists == False
+  tags: tinc-keys
 
 - name: Create tinc dirs
-  action: file dest=/etc/tinc/{{ item.name }}/hosts mode=755 owner=tinc group=tinc
+  action: file dest=/etc/tinc/{{ item.name }}/hosts mode=755 owner=tinc group=tinc state=directory
   with_items: "{{ tinc_net }}"
 
 - name: Create tinc.conf
   action: template src=tinc.conf.j2 dest=/etc/tinc/{{ item.name }}/tinc.conf
   with_items: "{{ tinc_net }}"
+  tags: tinc-conf
 
 - name: Create tinc-up
   action: template src=tinc-up.j2 dest=/etc/tinc/{{ item.name }}/tinc-up mode=0755
   with_items: "{{ tinc_net }}"
+  tags: tinc-up
 
 - name: Create hosts files
-  action: template src=host.j2 dest=/etc/tinc/{{ tinc_net.name}/hosts/{{ item }}
+  action: template src=host.j2 dest=/etc/tinc/{{ item[0].name }}/hosts/{{ item[1].replace('.','') }}
+  with_nested:
+    - tinc_net
+    - groups[item[0].groupname]
+  tags: tinc-hosts
+
+- name: Upload private key
+  action: copy src=/etc/ansible/tinc-conf/{{ inventory_hostname }}.rsa_key dest=/etc/tinc/{{ item.name }}/rsa_key.priv
   with_items:
-    - "{{ groups[tinc_net['groupname]] }}"
+    - "{{ tinc_net }}"
+  tags: tinc-privkey

@@ -1,3 +1,15 @@
-Address =  {{ tinc_host.address | default('caca') }} 
+{% if hostvars[item[1]].tinc_host is defined %}
+{% for host in hostvars[item[1]].tinc_host %}
+{% if host.net_name == item[0].name %}
+{% if host.address is defined %}
+Address = {{ host.address }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% else %}
+{% if hostvars[item[1]].ansible_default_ipv4 is defined %}
+Address = {{ hostvars[item[1]].ansible_default_ipv4.address  }}
+{% endif %}
+{% endif %}
 
-{{ lookup("file", "tinc-conf/" + inventory_hostname + ".rsa_key.pub") }}
+{{ lookup("file", "/etc/ansible/tinc-conf/" + item[1] + ".rsa_key.pub") }}
