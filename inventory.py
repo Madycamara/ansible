@@ -2,7 +2,8 @@
 
 from ConfigParser import RawConfigParser
 import MySQLdb as mdb
-import sys
+import sys, os, time
+
 try:
     import json
 except ImportError:
@@ -25,20 +26,19 @@ def grouplist(conn):
 	  inventory['all']['hosts'].append(name)
 
 
-#    for group in inventory:
-#         result=retvars(conn,'group',group)
-#         inventory[group]['vars']=result
-#         roles=retroles(conn,'group',group)
-#         if len(roles) > 0:
-#           inventory[group]['vars']['roles_group']=roles
+    for group in inventory:
+         result=retvars(conn,'group',group)
+         inventory[group]['vars']=result
+         roles=retroles(conn,'group',group)
+         if len(roles) > 0:
+           inventory[group]['vars']['roles_group']=roles
 
     inventory['_meta']={ 'hostvars' : {} }
     for host in inventory['all']['hosts']:
-      #meta['hostvars'][host].append(hostinfo(conn,host))
       inventory['_meta']['hostvars'][host]=hostinfo(conn,host,False)
 
     cur.close()
-    print json.dumps(inventory, indent=4)
+    return json.dumps(inventory, indent=4)
 
 def hostinfo(conn, name, printout=True):
   result=retvars(conn,'host',name)
@@ -102,7 +102,19 @@ def retvars(conn, type, name):
     
   return result
 
+def writecache(con,tmpfile):
+	json=grouplist(con)
+	cache=open(tmpfile, 'w')
+	cache.write(json)
+	cache.close()
+
+def printcache(tmpfile):
+	cache=open(tmpfile, 'r')
+	print cache.read()
+
+
 if __name__ == '__main__':
+    tmpfile='/tmp/ansible_cache.json'
     config = RawConfigParser()
     config.read(['/etc/ansible/inventory_conf.ini','inventory_conf.ini'])
     try:
@@ -112,7 +124,14 @@ if __name__ == '__main__':
       sys.exit(1)
 
     if len(sys.argv) == 2 and (sys.argv[1] == '--list'):
-        grouplist(con)
+	if os.path.isfile(tmpfile):
+		ago=time.time()-3600
+		if os.path.getmtime(tmpfile)<ago:
+			writecache(con,tmpfile)
+	else:
+		writecache(con,tmpfile)
+
+	printcache(tmpfile)
     elif len(sys.argv) == 3 and (sys.argv[1] == '--host'):
         hostinfo(con, sys.argv[2])
     else:
