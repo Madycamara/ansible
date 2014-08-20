@@ -9,7 +9,7 @@ except ImportError:
     import simplejson as json
 
 def grouplist(conn):
-    inventory ={}
+    inventory ={ }
     inventory['all']= { 'hosts': [] }
     cur = conn.cursor()
     cur.execute("SELECT IF(group.name is null,'all',group.name) AS `group`,host.name FROM host LEFT JOIN host_group ON host_group.host_id=host.id LEFT JOIN `group` ON host_group.group_id=group.id")
@@ -25,21 +25,29 @@ def grouplist(conn):
 	  inventory['all']['hosts'].append(name)
 
 
-    for group in inventory:
-         result=retvars(conn,'group',group)
-         inventory[group]['vars']=result
-         roles=retroles(conn,'group',group)
-         if len(roles) > 0:
-           inventory[group]['vars']['roles_group']=roles
+#    for group in inventory:
+#         result=retvars(conn,'group',group)
+#         inventory[group]['vars']=result
+#         roles=retroles(conn,'group',group)
+#         if len(roles) > 0:
+#           inventory[group]['vars']['roles_group']=roles
+
+    inventory['_meta']={ 'hostvars' : {} }
+    for host in inventory['all']['hosts']:
+      #meta['hostvars'][host].append(hostinfo(conn,host))
+      inventory['_meta']['hostvars'][host]=hostinfo(conn,host,False)
 
     cur.close()
     print json.dumps(inventory, indent=4)
 
-def hostinfo(conn, name):
+def hostinfo(conn, name, printout=True):
   result=retvars(conn,'host',name)
   roles=retroles(conn,'host',name)
   result['roles']=roles
-  print json.dumps(result, indent=4)
+  if printout == True:
+     print json.dumps(result, indent=4)
+  else:
+    return result
 
 def retroles(conn, type, name):
   result = {}
