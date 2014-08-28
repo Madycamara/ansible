@@ -1,0 +1,24 @@
+# Groups roles
+{% for groupvars in jsonplay %}
+{% if jsonplay[groupvars]['vars'] is defined %}
+{% if jsonplay[groupvars]['vars']['roles_group'] is defined %}
+- hosts: {{ groupvars }}
+  roles:
+{% for role in jsonplay[groupvars]['vars']['roles_group'] %}
+    - {{ role }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+# Host roles
+{% for host in jsonplay['_meta']['hostvars'] %}
+{% if jsonplay['_meta']['hostvars'][host]['roles'] is defined %}
+{% if jsonplay['_meta']['hostvars'][host]['roles']|length > 0 %}
+- hosts: {{ host }}
+{% for role in jsonplay['_meta']['hostvars'][host]['roles'] %}
+    - {{ role }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}

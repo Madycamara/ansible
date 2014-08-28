@@ -1,0 +1,6 @@
+- name: Load JSON
+  action: loadjson
+  register: jsonplay
+
+- name: Generate playbook.yml
+  action: template src=playbook.yml.j2 dest=/tmp/playbook.yml
