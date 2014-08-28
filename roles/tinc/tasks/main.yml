@@ -1,2 +1,2 @@
-#- include: install.yml tags=tinc,apt
+- include: install.yml tags=tinc,apt
 - include: configure.yml tags=tinc

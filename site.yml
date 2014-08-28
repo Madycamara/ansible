@@ -10,6 +10,8 @@
 - hosts: 
     - vpn.acs.li
     - casa.dyn.acs.li
+    - sistemes-marti
+    - nibbler.dyn.acs.li
   roles:
     - tinc
 

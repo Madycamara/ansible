@@ -116,7 +116,7 @@ def printcache(tmpfile):
 if __name__ == '__main__':
     tmpfile='/tmp/ansible_cache.json'
     config = RawConfigParser()
-    config.read(['/etc/ansible/inventory_conf.ini','inventory_conf.ini'])
+    config.read([os.path.dirname(os.path.abspath(__file__))+'/inventory_conf.ini'])
     try:
       con = mdb.connect(config.get('ansible','host'), config.get('ansible','user'), config.get('ansible','password'), config.get('ansible','db'));
     except mdb.Error, e:

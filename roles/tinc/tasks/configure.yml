@@ -41,7 +41,7 @@
   tags: tinc-up
 
 - name: Create hosts files
-  action: template src=host.j2 dest=/etc/tinc/{{ item[0].name }}/hosts/{{ item[1].replace('.','') }}
+  action: template src=host.j2 dest=/etc/tinc/{{ item[0].name }}/hosts/{{ item[1].replace('.','').replace('-','') }}
   with_nested:
     - tinc_net
     - groups[item[0].groupname]
