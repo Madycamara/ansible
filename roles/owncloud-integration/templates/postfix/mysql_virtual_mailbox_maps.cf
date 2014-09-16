@@ -1,0 +1,5 @@
+user = {{ owncloud_integration_dbuser }}
+password = {{ owncloud_integration_dbpass }}
+dbname = {{ owncloud_integration_dbname }}
+hosts = {{ owncloud_integration_dbhost }}
+query = SELECT uid FROM oc_users WHERE uid='%s'

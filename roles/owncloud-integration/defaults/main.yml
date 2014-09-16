@@ -1,0 +1,5 @@
+owncloud_integration_dbuser: root
+owncloud_integration_dbpass: somepass
+owncloud_integration_dbname: owncloud
+owncloud_integration_dbhost: localhost
+owncloud_integration_homedir: /home/mail
