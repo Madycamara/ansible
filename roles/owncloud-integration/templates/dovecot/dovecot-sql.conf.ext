@@ -1,0 +1,15 @@
+iterate_query = SELECT uid AS user FROM oc_users
+
+driver = mysql 
+connect = host={{ owncloud_integration_dbhost }} dbname={{ owncloud_integration_dbname } user={{ owncloud_integration_dbuser }} password={{ owncloud_integration_dbpass }}
+default_pass_scheme = BLF-CRYPT
+user_query = \
+       SELECT CONCAT('{{ owncloud_integration_homedir }}', SUBSTRING_INDEX(uid,'@',-1),'/',SUBSTRING_INDEX(uid,'@',1)) AS home, \
+       CONCAT('maildir:{{ owncloud_integration_homedir }}', SUBSTRING_INDEX(uid,'@',-1),'/',SUBSTRING_INDEX(uid,'@',1),'/Maildir') AS mail, \
+       500 AS uid, 500 AS gid \
+       FROM oc_users WHERE uid = '%u'
+password_query = \
+       SELECT uid AS user, password, CONCAT('{{ owncloud_integration_homedir }}', SUBSTRING_INDEX(uid,'@',-1),'/',SUBSTRING_INDEX(uid,'@',1)) AS userdb_home, \
+       CONCAT('maildir:{{ owncloud_integration_homedir }}', SUBSTRING_INDEX(uid,'@',-1),'/',SUBSTRING_INDEX(uid,'@',1),'/Maildir') AS userdb_mail, \
+       500 AS userdb_uid, 500 AS userdb_gid \
+       FROM oc_users WHERE uid = '%u'
